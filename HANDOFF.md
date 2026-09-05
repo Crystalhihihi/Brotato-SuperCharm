@@ -12,6 +12,12 @@ Brotato（土豆兄弟，含深海魔怪 DLC）的本地 mod「RomanceCharm」�
 已订阅条目的文件夹。目前寄生在 UnlockAll（3790215220）里。如果 UnlockAll 更新，zip 会被
 Steam 刷掉 → 重新跑 pack.sh 即可。
 
+**已发布**：自己的工坊条目 ID = **3796234584**（2026-09-06 用 GodotWorkshopUtility 上传，
+标题超级魅惑 SuperCharm）。迁移计划：用户订阅自己的条目 → 删除 UnlockAll 里的寄生 zip →
+pack.sh 改输出到 `3796234584` 文件夹。**注意迁移前两个文件夹同时有 zip 会双加载！**
+更新 mod 流程（迁移后）：改代码 → pack.sh → GodotWorkshopUtility 里填 ID 3796234584 点 Upload。
+另：发布前在游戏目录建了 `steam_appid.txt`（内容 1942280），是工具初始化的前提。
+
 ## mod 当前功能（v18 / manifest 1.0.18，已打包安装）
 
 -3. **魅惑磁石刷 boss**（v11 重写 → v12 DeepSeek 评审 → v13 调松 → v14 动态压力）：
