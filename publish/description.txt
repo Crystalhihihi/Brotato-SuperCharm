@@ -1,0 +1,27 @@
+【标题】超级魅惑 SuperCharm
+
+【简介（贴在创意工坊描述）】
+
+魅惑流全面强化：永久魅惑、魅惑大军、boss 收编、复活币。
+
+Vanilla charm, unchained: permanent charm, a real charmed army, boss taming, and a new item.
+
+▌功能 / Features
+
+- 魅惑不再 8 秒后死亡，小怪魅惑瞬间回满血
+- 魅惑怪会被敌人锁定和攻击（魅惑后 1.5 秒保护期），你的武器不会误伤它们
+- 魅惑怪继承你的击退属性，并每秒回复等同于你「生命恢复」的血量
+- boss/精英死亡时 10% 概率魅惑复活（25% 血量、数值冻结在死亡波次），活着就能带进下一波
+- 魅惑大军会吸引额外 boss：魅惑方战力越强，来袭的 boss 越多（有上限，无尽模式随波数放宽）
+- 新道具「复活币」：随机绑定一种被魅惑的小怪，之后每波它都会满血魅惑参战，死了下波再来；诅咒版绑定两只
+
+- Charm no longer expires after 8s; charmed enemies refill to full HP
+- Charmed enemies are targeted and attacked by enemies (1.5s grace after charm); your weapons never hit them
+- Charmed enemies inherit your knockback and regenerate HP equal to your HP Regeneration
+- Bosses/elites have a 10% chance to revive charmed on death (25% HP, stats frozen at that wave) and follow you to the next wave while alive
+- Your charm swarm attracts extra bosses: the stronger the swarm, the more bosses show up (capped; scales up in endless)
+- New item "Revival Coin": binds a random charmed enemy species; it joins every wave charmed at full HP, even if it dies. Binds two when cursed
+
+依赖 / Requires: Darkly77-ContentLoader
+
+标签建议 / Tags: New Mechanics, Items
