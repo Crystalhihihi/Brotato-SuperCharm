@@ -51,6 +51,9 @@ var _coin_allies := {}
 var _coin_bindings := {}
 # species scene_path -> count of currently alive charmed instances (combat only)
 var _charmed_alive_species := {}
+# base max_enemies of the wave before we refund the swarm's share
+var _max_enemies_base := -1
+var _max_enemies_base_for := 0
 
 
 func _init() -> void:
@@ -389,8 +392,10 @@ func _reset_run_state() -> void:
 	_coin_bindings.clear()
 	_charmed_alive_species.clear()# Each cursed charm coin injects an extra charm window (+1% under 60% HP) into
 # the player's charm effects at runtime; the base 2%@30% boost comes from the
-# vanilla curse pass doubling the effect value. Existing windows are counted
-# live so a resumed save can't desync the count
+# vanilla curse pass doubling the effect value. The stat hash is
+# structure_range — a stat that stays 0 in practice, keeping the chance flat
+# instead of scaling off max HP into guaranteed charm in the ultra late game.
+# Existing windows are counted live so a resumed save can't desync the count
 func _reconcile_charm_coins() -> void:
 	var cursed := 0
 	for item in RunData.get_player_items_ref(0):
@@ -399,13 +404,13 @@ func _reconcile_charm_coins() -> void:
 	var arr = RunData.get_player_effects(0)[Keys.charm_on_hit_hash]
 	var existing := 0
 	for e in arr:
-		if e is Array and e == [Keys.stat_max_hp_hash, 1, 60]:
+		if e is Array and e == [Keys.structure_range_hash, 1, 60]:
 			existing += 1
 	while existing < cursed:
-		arr.push_back([Keys.stat_max_hp_hash, 1, 60])
+		arr.push_back([Keys.structure_range_hash, 1, 60])
 		existing += 1
 	while existing > cursed:
-		var idx = arr.find([Keys.stat_max_hp_hash, 1, 60])
+		var idx = arr.find([Keys.structure_range_hash, 1, 60])
 		if idx == -1:
 			break
 		arr.remove(idx)
@@ -530,6 +535,20 @@ func _scan(spawner, main) -> void:
 		var e2 = instance_from_id(id)
 		if e2 == null or not is_instance_valid(e2) or e2.dead:
 			_magnet_bosses.erase(id)
+
+	# charmed allies stay in the spawner's enemies list, so a big swarm eats the
+	# vanilla max_enemies budget and the game starts executing "excess" small
+	# enemies (that's why smalls dry up mid game, not the bosses — bosses have
+	# their own list). Refund the budget by the number of living charmed smalls
+	var wd = spawner.get("_current_wave_data")
+	if wd != null:
+		if wd.get_instance_id() != _max_enemies_base_for:
+			_max_enemies_base_for = wd.get_instance_id()
+			_max_enemies_base = wd.max_enemies
+		var charmed_total := 0
+		for key in _charmed_alive_species:
+			charmed_total += _charmed_alive_species[key]
+		wd.max_enemies = _max_enemies_base + charmed_total
 
 
 func _reconcile_coins() -> void:

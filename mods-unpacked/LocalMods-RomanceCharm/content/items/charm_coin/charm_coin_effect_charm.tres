@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource( 1 )
-key = "stat_max_hp"
+key = "stat_structure_range"
 text_key = "EFFECT_CHARM_COIN"
 value = 1
 custom_key = "charm_on_hit"
