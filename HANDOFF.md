@@ -16,7 +16,7 @@ Brotato（土豆兄弟，含深海魔怪 DLC）的本地 mod「RomanceCharm」�
 点 Upload。注意：自己条目更新后 Steam 会重新下载覆盖本地 zip → 本地改动后重新跑 pack.sh。
 另：发布前在游戏目录建了 `steam_appid.txt`（内容 1942280），是工具初始化的前提。
 
-## mod 当前功能（v18 / manifest 1.0.18，已打包安装）
+## mod 当前功能（v19 / manifest 1.0.19，已打包安装，zip 输出到自己工坊条目 3796234584）
 
 -3. **魅惑磁石刷 boss**（v11 重写 → v12 DeepSeek 评审 → v13 调松 → v14 动态压力）：
    按战力占比（小怪 Σ(max血×max伤害)，boss 两边都不算）每 4s 判定。
@@ -162,6 +162,13 @@ Brotato（土豆兄弟，含深海魔怪 DLC）的本地 mod「RomanceCharm」�
     触发时若 `enemies.size() > max_enemies` 会**随机处死超额怪（不掉落）**——魅惑怪在
     enemies 列表里照样占名额、照样可能被处死。boss 在 bosses 列表不占此名额。
     这是"魅惑海大了小怪变少"的原因，原版机制，不改。
+17. **空场期误刷 boss（v19/1.0.19 修复）**：磁石的"敌方清零=顶格"分支没排除
+    `charmed_power == 0`——开局怪还没刷、或怪死光的空档期，双方都是 0 → 比值顶格 →
+    70% 狂刷 boss（"前期没魅惑也出 boss"）。修复：`charmed_power <= 0` 直接 return。
+18. **携带 boss 刷在玩家脸上（v19 缓解）**：跨波记录没有死亡位置（只有复活的 record 有
+    pos），复活落点 = 玩家坐标 → boss 在脸上生成且开局索敌只有玩家 → 立刻朝玩家冲锋，
+    观感=攻击玩家。修复：无 pos 时改用 `get_spawn_pos_in_area(玩家, -1, 100)` 随机落点。
+    （注：魅惑后 hitbox 层是 1024，理论上撞不到玩家；若实测仍掉血再深挖）
 11. **"有时有mod有时没mod"的真相（2026-09-05 查明）**：不是两个存档，是 Brotato 自带的
     崩溃保护 `crash_reporter.gd`——启动时扫描上一次 godot.log，只要有含 "mods-unpacked"
     的 ERROR（闪退必留下），就把 options profile 的 `enable_mods` 置 false → 下一次启动
