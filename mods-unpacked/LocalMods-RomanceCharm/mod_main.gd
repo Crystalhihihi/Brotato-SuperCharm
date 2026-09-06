@@ -157,6 +157,18 @@ func _setup_charmed_ally(enemy) -> void:
 		return
 	if not spawner.targetable_pets.has(enemy):
 		spawner.targetable_pets.push_back(enemy)
+	# absolute guarantee: the ally's contact hitbox can never hurt the player,
+	# even if some layer edge case lets them overlap (hitbox.ignored_objects is
+	# checked by the victim's hurtbox before any damage). Original list is
+	# stored and restored on death for the spawner pool
+	var hitbox = enemy.get("_hitbox")
+	if hitbox != null:
+		if not enemy.has_meta("rc_ignored"):
+			enemy.set_meta("rc_ignored", hitbox.ignored_objects.duplicate())
+		var players = main.get("_players")
+		if players is Array and not players.empty() and is_instance_valid(players[0]):
+			hitbox.ignored_objects = enemy.get_meta("rc_ignored").duplicate()
+			hitbox.ignored_objects.push_back(players[0])
 	if not enemy.is_connected("died", self, "_on_charmed_ally_died"):
 		var _e = enemy.connect("died", self, "_on_charmed_ally_died")
 	if hurtbox != null:
@@ -208,6 +220,11 @@ func _on_charmed_ally_died(entity, _args) -> void:
 			kb.knockback_amount = entity.get_meta("rc_kb")[0]
 			kb.knockback_piercing = entity.get_meta("rc_kb")[1]
 		entity.remove_meta("rc_kb")
+	if entity.has_meta("rc_ignored"):
+		var hb2 = entity.get("_hitbox")
+		if hb2 != null:
+			hb2.ignored_objects = entity.get_meta("rc_ignored")
+		entity.remove_meta("rc_ignored")
 	var main = Utils.get_scene_node()
 	if main == null or not ("_entity_spawner" in main):
 		return
@@ -556,6 +573,14 @@ func _revive_boss(record, main) -> void:
 	if hb != null:
 		hb.damage = record.damage
 	_charm_enemy(boss, 0)
+	# verify the charm actually took — a revived boss that stays hostile keeps
+	# its frozen stats and WILL kill the player at wave start
+	var cb = _get_charm_behavior(boss)
+	var is_charmed = cb != null and cb.charmed
+	if not is_charmed:
+		ModLoaderLog.error("boss revive charm FAILED, despawning to be safe: %s" % record.scene_path, RC_LOG)
+		boss.die(Utils.default_die_args)
+		return
 	ModLoaderLog.info("boss revived charmed: %s hp=%s/%s" % [boss.name, boss.current_stats.health, boss.max_stats.health], RC_LOG)
 
 
