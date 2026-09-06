@@ -109,20 +109,25 @@ func _load_texture_from_disk(abs_path: String):
 
 
 func _add_translations() -> void:
+	# vanilla-style rich text: BBCode colors straight from the user's settings
+	# (same source the vanilla effect renderer uses)
+	var pos = "[color=#" + ProgressData.settings.color_positive + "]"
+	var cur = "[color=#" + Utils.CURSE_COLOR.to_html() + "]"
+	var e = "[/color]"
 	for locale in ["zh_Hans_CN", "zh_CN", "zh"]:
 		var zh = Translation.new()
 		zh.locale = locale
 		zh.add_message("ITEM_REVIVAL_COIN", "复活币")
-		zh.add_message("EFFECT_REVIVAL_COIN", "战斗中从场上仍存活的被魅惑小怪中随机绑定一只；之后每波它以魅惑状态满血参战（数值随波次增长），战死后下一波重新归来。被诅咒时绑定两只")
+		zh.add_message("EFFECT_REVIVAL_COIN", "战斗中从仍存活的被魅惑小怪中随机绑定" + pos + "一只" + e + "；之后每波它以魅惑状态" + pos + "满血" + e + "参战（数值随波次增长），战死后下一波重新归来。被" + cur + "诅咒" + e + "时绑定" + cur + "两只" + e)
 		zh.add_message("ITEM_CHARM_COIN", "魅惑币")
-		zh.add_message("EFFECT_CHARM_COIN", "攻击命中生命值低于30%的敌人时，有1%概率将其魅惑（最多持有5个）。被诅咒时：概率提升至2%，且生命值低于60%的敌人追加1%概率")
+		zh.add_message("EFFECT_CHARM_COIN", "攻击命中生命值低于 " + pos + "30%" + e + " 的敌人时，有 " + pos + "1%" + e + " 概率将其魅惑（最多持有 " + pos + "5" + e + " 个）。被" + cur + "诅咒" + e + "时：概率提升至 " + cur + "2%" + e + "，且生命值低于 " + cur + "60%" + e + " 的敌人追加 " + cur + "1%" + e + " 概率")
 		TranslationServer.add_translation(zh)
 	var en = Translation.new()
 	en.locale = "en"
 	en.add_message("ITEM_REVIVAL_COIN", "Revival Coin")
-	en.add_message("EFFECT_REVIVAL_COIN", "Binds a random charmed enemy still alive on the field. It joins every following wave charmed at full HP (stats scale with waves); if it dies, it returns next wave. Binds two when cursed")
+	en.add_message("EFFECT_REVIVAL_COIN", "Binds " + pos + "one" + e + " random charmed enemy still alive on the field. It joins every wave charmed at " + pos + "full HP" + e + " (stats scale with waves); if it dies, it returns next wave. Binds " + cur + "two" + e + " when " + cur + "cursed" + e)
 	en.add_message("ITEM_CHARM_COIN", "Charm Coin")
-	en.add_message("EFFECT_CHARM_COIN", "Hits on enemies below 30% HP have a 1% chance to charm them (max 5). When cursed: 2% chance, plus an extra 1% window on enemies below 60% HP")
+	en.add_message("EFFECT_CHARM_COIN", "Hits on enemies below " + pos + "30%" + e + " HP have a " + pos + "1%" + e + " chance to charm them (max " + pos + "5" + e + "). When " + cur + "cursed" + e + ": " + cur + "2%" + e + " chance, plus an extra " + cur + "1%" + e + " window on enemies below " + cur + "60%" + e + " HP")
 	TranslationServer.add_translation(en)
 
 
