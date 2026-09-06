@@ -16,8 +16,7 @@ const BOSS_MAGNET_MIN_RATIO := 0.10
 const BOSS_MAGNET_RATIO_FACTOR := 0.8
 const BOSS_MAGNET_CHANCE_CAP := 0.70
 const BOSS_MAGNET_RATIO_CLAMP := 3.0
-# alive cap = base + floor(ratio) (max 5); wave cap = base + floor(ratio*1.5) (max 7)
-const BOSS_MAGNET_BASE_ALIVE := 2
+# alive cap by wave: 8->1, 12->2, 16->3, 20->4 (+endless bonus); wave cap = base + ratio
 const BOSS_MAGNET_BASE_PER_WAVE := 3
 # absolute gates so tiny armies can't attract bosses no matter the ratio:
 # magnet stays off below 3 charmed, and the "full conversion = max pressure"
@@ -335,8 +334,10 @@ func _boss_magnet_roll(spawner, main) -> void:
 	# vanilla waves spawn dozens of bosses on their own, so the caps keep
 	# growing with the wave number to stay relevant
 	var endless_bonus = max(0, (RunData.current_wave - 20) / 4)
-	var alive_cap = BOSS_MAGNET_BASE_ALIVE + int(min(ratio, BOSS_MAGNET_RATIO_CLAMP)) + endless_bonus
+	# alive cap by wave: 8->1, 12->2, 16->3, 20->4, then endless bonus
+	var alive_cap = clamp(1 + (RunData.current_wave - 8) / 4, 1, 4) + endless_bonus
 	var wave_cap = BOSS_MAGNET_BASE_PER_WAVE + int(min(ratio, BOSS_MAGNET_RATIO_CLAMP) * 1.5) + endless_bonus * 2
+	wave_cap = max(wave_cap, alive_cap)
 	if _magnet_spawned_this_wave >= wave_cap:
 		return
 	if _magnet_bosses.size() >= alive_cap:
@@ -353,7 +354,7 @@ func _boss_magnet_roll(spawner, main) -> void:
 		var data = Utils.get_rand_element(pool)
 		if data == null or data.scene == null:
 			continue
-		var pos = spawner.get_spawn_pos_in_area(_get_player_pos(main), -1, 100)
+		var pos = spawner.get_spawn_pos_in_area(_get_player_pos(main), -1, 100, true)
 		var args = EntitySpawner.SpawnEntityArgs.new(pos, EntityType.BOSS)
 		var boss = spawner.spawn_entity(data.scene, args, null, null, -1)
 		if boss == null:
