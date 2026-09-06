@@ -16,7 +16,7 @@ Brotato（土豆兄弟，含深海魔怪 DLC）的本地 mod「RomanceCharm」�
 点 Upload。注意：自己条目更新后 Steam 会重新下载覆盖本地 zip → 本地改动后重新跑 pack.sh。
 另：发布前在游戏目录建了 `steam_appid.txt`（内容 1942280），是工具初始化的前提。
 
-## mod 当前功能（v19 / manifest 1.0.19，已打包安装，zip 输出到自己工坊条目 3796234584）
+## mod 当前功能（v20 / manifest 1.0.20，已打包安装，zip 输出到自己工坊条目 3796234584）
 
 -3. **魅惑磁石刷 boss**（v11 重写 → v12 DeepSeek 评审 → v13 调松 → v14 动态压力）：
    按战力占比（小怪 Σ(max血×max伤害)，boss 两边都不算）每 4s 判定。
@@ -168,7 +168,13 @@ Brotato（土豆兄弟，含深海魔怪 DLC）的本地 mod「RomanceCharm」�
 18. **携带 boss 刷在玩家脸上（v19 缓解）**：跨波记录没有死亡位置（只有复活的 record 有
     pos），复活落点 = 玩家坐标 → boss 在脸上生成且开局索敌只有玩家 → 立刻朝玩家冲锋，
     观感=攻击玩家。修复：无 pos 时改用 `get_spawn_pos_in_area(玩家, -1, 100)` 随机落点。
-    （注：魅惑后 hitbox 层是 1024，理论上撞不到玩家；若实测仍掉血再深挖）
+19. **魅惑 boss 打死玩家（v20/1.0.20 双保险）**：用户实锤被魅惑 boss 开局撞死。两种可能：
+    (a) 开局魅惑没生效（hostile 冻结数值 boss 在脸上）——`_revive_boss` 现在**验证
+    `cb.charmed`，失败直接 die 移除**并记 error 日志（`boss revive charm FAILED`）；
+    (b) 层机制的边界情况——所有魅惑单位的 `_hitbox.ignored_objects` 里推入玩家
+    （`hurt_area_entered_deferred` 先查 ignored_objects 再谈伤害），原数组存 meta
+    (rc_ignored) 死亡恢复（池子防护同款）。若 v20 之后仍被魅惑 boss 伤血，剩余嫌疑 =
+    boss 特殊技能生成的 hazard/AOE（不走 custom_collision_layer），届时再处理。
 11. **"有时有mod有时没mod"的真相（2026-09-05 查明）**：不是两个存档，是 Brotato 自带的
     崩溃保护 `crash_reporter.gd`——启动时扫描上一次 godot.log，只要有含 "mods-unpacked"
     的 ERROR（闪退必留下），就把 options profile 的 `enable_mods` 置 false → 下一次启动

@@ -19,6 +19,11 @@ const BOSS_MAGNET_RATIO_CLAMP := 3.0
 # alive cap = base + floor(ratio) (max 5); wave cap = base + floor(ratio*1.5) (max 7)
 const BOSS_MAGNET_BASE_ALIVE := 2
 const BOSS_MAGNET_BASE_PER_WAVE := 3
+# absolute gates so tiny armies can't attract bosses no matter the ratio:
+# magnet stays off below 3 charmed, and the "full conversion = max pressure"
+# rule only kicks in for a real swarm (5+)
+const BOSS_MAGNET_MIN_CHARMED := 3
+const BOSS_MAGNET_FULL_SWARM_MIN := 5
 const CHARM_BEHAVIOR_SCENE := "res://dlcs/dlc_1/effect_behaviors/enemy/charm_enemy_effect_behavior.tscn"
 
 var _last_main = null
@@ -288,6 +293,7 @@ func _boss_magnet_roll(spawner, main) -> void:
 		return
 	var charmed_power := 0
 	var hostile_power := 0
+	var charmed_count := 0
 	for enemy in spawner.get_all_enemies(true):
 		if enemy == null or not is_instance_valid(enemy) or enemy.dead:
 			continue
@@ -301,14 +307,23 @@ func _boss_magnet_roll(spawner, main) -> void:
 			continue
 		if cb != null and cb.charmed:
 			charmed_power += power
+			charmed_count += 1
 		else:
 			hostile_power += power
-	# no charm army, no magnet — the "hostile is empty" clamp below is for
-	# full conversion, not for empty fields (wave start / all dead gaps)
-	if charmed_power <= 0:
+	# absolute gate: a handful of charmed enemies never attracts bosses, no
+	# matter how dominant the ratio is (v19 bug: 1 coin ally + empty field =
+	# clamped ratio = boss rain at wave 4)
+	if charmed_count < BOSS_MAGNET_MIN_CHARMED:
 		return
-	# full conversion (nothing hostile left) = maximum pressure, not a free pass
-	var ratio = BOSS_MAGNET_RATIO_CLAMP if hostile_power <= 0 else float(charmed_power) / float(hostile_power)
+	# full conversion (nothing hostile left) = maximum pressure, but only for
+	# a real swarm
+	var ratio = 0.0
+	if hostile_power <= 0:
+		if charmed_count < BOSS_MAGNET_FULL_SWARM_MIN:
+			return
+		ratio = BOSS_MAGNET_RATIO_CLAMP
+	else:
+		ratio = float(charmed_power) / float(hostile_power)
 	if ratio < BOSS_MAGNET_MIN_RATIO:
 		return
 	# the stronger the swarm, the more bosses it has to earn; in endless the

@@ -1,7 +1,7 @@
 {
 	"name": "RomanceCharm",
 	"namespace": "LocalMods",
-	"version_number": "1.0.20",
+	"version_number": "1.0.21",
 	"description": "Permanent charm, boss revive-charm, carry-over bosses, revival coin item",
 	"website_url": "",
 	"dependencies": ["Darkly77-ContentLoader"],
