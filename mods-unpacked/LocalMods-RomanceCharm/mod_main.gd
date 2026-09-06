@@ -24,6 +24,9 @@ const BOSS_MAGNET_BASE_PER_WAVE := 3
 # rule only kicks in for a real swarm (5+)
 const BOSS_MAGNET_MIN_CHARMED := 3
 const BOSS_MAGNET_FULL_SWARM_MIN := 5
+# vanilla elites start appearing around wave 10; attracting bosses before that
+# punishes an early charm army that can barely form (wave-4 boss rain incident)
+const BOSS_MAGNET_MIN_WAVE := 8
 const CHARM_BEHAVIOR_SCENE := "res://dlcs/dlc_1/effect_behaviors/enemy/charm_enemy_effect_behavior.tscn"
 
 var _last_main = null
@@ -290,6 +293,8 @@ func _process(delta: float) -> void:
 # capped alive and per wave
 func _boss_magnet_roll(spawner, main) -> void:
 	if spawner.get("_cleaning_up"):
+		return
+	if RunData.current_wave < BOSS_MAGNET_MIN_WAVE:
 		return
 	var charmed_power := 0
 	var hostile_power := 0
