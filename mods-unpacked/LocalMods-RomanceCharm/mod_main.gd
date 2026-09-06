@@ -366,6 +366,12 @@ func _boss_magnet_roll(spawner, main) -> void:
 	if pool.empty():
 		return
 	var count = 2 if ratio >= 1.5 else 1
+	# never exceed the remaining room of either cap (v23 bug: the 2-at-once
+	# roll ignored the alive cap, so every stage spawned one extra boss)
+	count = min(count, alive_cap - _magnet_bosses.size())
+	count = min(count, wave_cap - _magnet_spawned_this_wave)
+	if count <= 0:
+		return
 	var spawned := 0
 	for i in count:
 		var data = Utils.get_rand_element(pool)
