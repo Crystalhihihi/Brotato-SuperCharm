@@ -5,7 +5,7 @@
 Brotato（土豆兄弟，含深海魔怪 DLC）的本地 mod「RomanceCharm」，增强魅惑机制。
 源码：`D:\BrotatoMods\RomanceCharm\mods-unpacked\LocalMods-RomanceCharm\`
 打包安装：项目根目录 `bash pack.sh`（**游戏必须先关闭**，否则 zip 被占用写入失败），
-会生成 zip 到 `D:\SteamLibrary\steamapps\workshop\content\1942280\3790215220\RomanceCharm.zip`。
+会生成 zip 到 `D:\SteamLibrary\steamapps\workshop\content\1942280\3796234584\RomanceCharm.zip`。
 
 **重要**：这个游戏只扫描「已订阅工坊条目」的文件夹里的 zip（加载器逻辑见
 `load_steam_workshop_zips`，只认 `int(文件夹名) in 已订阅列表`）。
@@ -16,7 +16,16 @@ Brotato（土豆兄弟，含深海魔怪 DLC）的本地 mod「RomanceCharm」�
 点 Upload。注意：自己条目更新后 Steam 会重新下载覆盖本地 zip → 本地改动后重新跑 pack.sh。
 另：发布前在游戏目录建了 `steam_appid.txt`（内容 1942280），是工具初始化的前提。
 
-## mod 当前功能（v23 / manifest 1.0.23，已打包安装，zip 输出到自己工坊条目 3796234584）
+## mod 当前功能（v24 / manifest 1.0.24，已打包安装，zip 输出到自己工坊条目 3796234584）
+
+-4. **魅惑币（红装 tier=3，100 块，max_nb=5，红底紫心图标）**：CharmEffect
+   （key=stat_max_hp, custom_key=charm_on_hit, value=1, value2=30, KEY_VALUE）→
+   任何角色约 1% 魅惑率（<30% 血，原版公式 max(1,...) 保底）。**诅咒**：原版通用诅咒把
+   value 1→2（2%@30%），mod 运行时给每个被诅咒魅惑币注入 [stat_max_hp,1,60] 窗口
+   （`_reconcile_charm_coins`，实时清点防读档不同步）→ 合计约 2%@30% + 1%@60%。
+   **浪漫之人专属**：持魅惑币时 boss 复活率 10%→15%（`_boss_charm_chance`，
+   角色判定 `RunData.get_player_character(0).my_id == "character_romantic"`）。
+   注意：买币后只有**新刷出**的敌人带魅惑行为（原版限制，behavior 只在 spawn 时挂）
 
 -3. **魅惑磁石刷 boss**（v11 重写 → v12 DeepSeek 评审 → v13 调松 → v14 动态压力）：
    按战力占比（小怪 Σ(max血×max伤害)，boss 两边都不算）每 4s 判定。
