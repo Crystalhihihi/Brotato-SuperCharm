@@ -16,7 +16,7 @@ Brotato（土豆兄弟，含深海魔怪 DLC）的本地 mod「RomanceCharm」�
 点 Upload。注意：自己条目更新后 Steam 会重新下载覆盖本地 zip → 本地改动后重新跑 pack.sh。
 另：发布前在游戏目录建了 `steam_appid.txt`（内容 1942280），是工具初始化的前提。
 
-## mod 当前功能（v25 / manifest 1.0.25，已打包安装，zip 输出到自己工坊条目 3796234584）
+## mod 当前功能（v26 / manifest 1.0.26，已打包安装，zip 输出到自己工坊条目 3796234584）
 
 -4. **魅惑币（红装 tier=3，100 块，max_nb=5，红底紫心图标）**：CharmEffect
    （key=stat_max_hp, custom_key=charm_on_hit, value=1, value2=30, KEY_VALUE）→
