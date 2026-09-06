@@ -16,7 +16,7 @@ Brotato（土豆兄弟，含深海魔怪 DLC）的本地 mod「RomanceCharm」�
 点 Upload。注意：自己条目更新后 Steam 会重新下载覆盖本地 zip → 本地改动后重新跑 pack.sh。
 另：发布前在游戏目录建了 `steam_appid.txt`（内容 1942280），是工具初始化的前提。
 
-## mod 当前功能（v22 / manifest 1.0.22，已打包安装，zip 输出到自己工坊条目 3796234584）
+## mod 当前功能（v23 / manifest 1.0.23，已打包安装，zip 输出到自己工坊条目 3796234584）
 
 -3. **魅惑磁石刷 boss**（v11 重写 → v12 DeepSeek 评审 → v13 调松 → v14 动态压力）：
    按战力占比（小怪 Σ(max血×max伤害)，boss 两边都不算）每 4s 判定。
@@ -32,7 +32,10 @@ Brotato（土豆兄弟，含深海魔怪 DLC）的本地 mod「RomanceCharm」�
    日志：`charm swarm attracted a boss (charm power ratio ...)`
    **v22 起加波次闸门**：第 8 波前磁石不启动（BOSS_MAGNET_MIN_WAVE）——原版第一个精英
    第 10 波左右才露面，前期魅惑凑 3 只很费劲，boss 落地瞬清场 = 纯惩罚死循环。
-   数量门槛仍是 3，备选未做：前期磁石 boss 属性打折。
+   **v23 起**：磁石 boss 改**地图边缘**生成（`get_spawn_pos_in_area(..., true)`，不再
+   刷脸上）；在场上限按波次表 `clamp(1+(wave-8)/4, 1, 4)` = 8/12/16/20 波 → 1/2/3/4 只，
+   无尽加成照旧。非魅惑构筑（无浪漫之人/长笛）下 mod 完全惰性：魅惑不触发 → 磁石不达标、
+   币空槽、boss 复活跳过。币对非魅惑局是白板，备选未做：无魅惑来源时币不进商店池。
    注：`_charmed_alive_species` 只统计普通怪（复活币不绑 boss，boss 跨波有
    专门的 `_boss_records` 通道）
 -2.5. **跨波携带修复**：波末 cleanup 会对所有 boss 调 die()，此前 `_on_boss_died` 把它当
