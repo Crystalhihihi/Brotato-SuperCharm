@@ -16,7 +16,7 @@ Brotato（土豆兄弟，含深海魔怪 DLC）的本地 mod「RomanceCharm」�
 点 Upload。注意：自己条目更新后 Steam 会重新下载覆盖本地 zip → 本地改动后重新跑 pack.sh。
 另：发布前在游戏目录建了 `steam_appid.txt`（内容 1942280），是工具初始化的前提。
 
-## mod 当前功能（v24 / manifest 1.0.24，已打包安装，zip 输出到自己工坊条目 3796234584）
+## mod 当前功能（v25 / manifest 1.0.25，已打包安装，zip 输出到自己工坊条目 3796234584）
 
 -4. **魅惑币（红装 tier=3，100 块，max_nb=5，红底紫心图标）**：CharmEffect
    （key=stat_max_hp, custom_key=charm_on_hit, value=1, value2=30, KEY_VALUE）→
@@ -173,10 +173,16 @@ Brotato（土豆兄弟，含深海魔怪 DLC）的本地 mod「RomanceCharm」�
     所有 ContentLoader 自定义道具**永远进不了商店池**。修复：注册时自己把
     `Keys.generate_hash(COIN_ID)` 推进 `ProgressData.items_unlocked`（时机在
     _install_data 建池之前）。（QMtato 的自定义道具应该也全军覆没，没人发现而已）
-16. **魅惑大军占刷怪名额**：每波有 `max_enemies` 上限（wave_data，随波数放大），新刷组
-    触发时若 `enemies.size() > max_enemies` 会**随机处死超额怪（不掉落）**——魅惑怪在
-    enemies 列表里照样占名额、照样可能被处死。boss 在 bosses 列表不占此名额。
-    这是"魅惑海大了小怪变少"的原因，原版机制，不改。
+16. **魅惑大军占刷怪名额（v25/1.0.25 缓解）**：每波有 `max_enemies` 上限，新刷组触发时
+    若 `enemies.size() > max_enemies` 会随机处死超额怪（不掉落）。魅惑怪在 enemies 列表里
+    占名额 → 魅惑海一大，系统不停处死小怪，中期小怪不够用（boss 在 bosses 列表不占名额，
+    "boss 顶掉小怪"其实是魅惑大军占的）。修复：_scan 里把上限实时改为
+    `base + 存活魅惑小怪数`（base 按 wave_data 实例 id 捕获，防资源复用串波）。
+21. **魅惑币血量加成去除（v25）**：魅惑公式 `max(1, value/100 × get_stat(key))`，原来
+    key=stat_max_hp → 大后期几千血×5币=100%。改成 `structure_range`（实战中恒 0，
+    init_stats 里有、hash_to_string 里有）→ 固定 1%/币。诅咒注入窗口同步改
+    [structure_range,1,60]。**注意：换占位属性时必须确认它在 init_stats 和
+    Keys.hash_to_string 里都存在，否则 get_stat/get_stat_gain 会 null 崩。**
 17. **空场期误刷 boss（v19/1.0.19 修复）**：磁石的"敌方清零=顶格"分支没排除
     `charmed_power == 0`——开局怪还没刷、或怪死光的空档期，双方都是 0 → 比值顶格 →
     70% 狂刷 boss（"前期没魅惑也出 boss"）。修复：`charmed_power <= 0` 直接 return。
