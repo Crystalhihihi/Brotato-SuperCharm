@@ -183,6 +183,13 @@ Brotato（土豆兄弟，含深海魔怪 DLC）的本地 mod「RomanceCharm」�
     init_stats 里有、hash_to_string 里有）→ 固定 1%/币。诅咒注入窗口同步改
     [structure_range,1,60]。**注意：换占位属性时必须确认它在 init_stats 和
     Keys.hash_to_string 里都存在，否则 get_stat/get_stat_gain 会 null 崩。**
+22. **道具描述显示 "Null"（v28/1.0.28 修复）**：道具面板的 effect 文本走
+    `Effect.get_text → Text.text(tr(key), args)` 管线。两个坑：(a) CharmEffect.get_args
+    会查刻度属性的小图标（`ItemService.get_stat_small_icon`），`structure_range` 没有图标
+    资源 → null.small_icon 崩 → get_text 返回 null → 显示 "Null"；(b) 基类 get_args 对
+    key="" 的效果跑 `tr("")` → Godot 3 返回 "Null"（复活币 marker 从 v1 就坏，没人截图发现）。
+    修复：自定义效果类**覆写 get_text 直接 return tr(文本key)**，绕过参数/图标管线。
+    **教训：自定义效果的 text_key 文本如果不需要占位符，就覆写 get_text；别依赖基类管线。**
 17. **空场期误刷 boss（v19/1.0.19 修复）**：磁石的"敌方清零=顶格"分支没排除
     `charmed_power == 0`——开局怪还没刷、或怪死光的空档期，双方都是 0 → 比值顶格 →
     70% 狂刷 boss（"前期没魅惑也出 boss"）。修复：`charmed_power <= 0` 直接 return。
