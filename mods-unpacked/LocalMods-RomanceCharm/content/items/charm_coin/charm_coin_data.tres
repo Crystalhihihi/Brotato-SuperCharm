@@ -1,0 +1,17 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://items/global/item_data.gd" type="Script" id=1]
+[ext_resource path="res://mods-unpacked/LocalMods-RomanceCharm/content/items/charm_coin/charm_coin_effect_charm.tres" type="Resource" id=2]
+
+[resource]
+script = ExtResource( 1 )
+my_id = "item_charm_coin"
+unlocked_by_default = true
+name = "ITEM_CHARM_COIN"
+tier = 3
+value = 100
+effects = [ ExtResource( 2 ) ]
+tracking_text = ""
+max_nb = 5
+item_appearances = [  ]
+tags = [  ]

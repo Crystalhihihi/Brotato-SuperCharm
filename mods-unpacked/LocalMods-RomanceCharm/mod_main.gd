@@ -3,7 +3,11 @@ extends Node
 const RC_LOG = "LocalMods-RomanceCharm"
 const MOD_DIR = "LocalMods-RomanceCharm/"
 const COIN_ID = "item_revival_coin"
+const CHARM_COIN_ID = "item_charm_coin"
 const BOSS_CHARM_CHANCE := 0.10
+# romantic players already hit 100% charm late game, so their charm coin bonus
+# is a better boss-taming rate instead of more small-fry charm
+const BOSS_CHARM_ROMANTIC_BONUS := 0.05
 const BOSS_REVIVE_HP_RATIO := 0.25
 const BOSS_WAVE_HEAL_RATIO := 0.20
 const ALLY_GRACE_PERIOD := 1.5
@@ -53,6 +57,8 @@ func _init() -> void:
 	# Warm the script cache so mod content compiles against cached vanilla classes
 	load("res://items/global/effect.gd")
 	load("res://items/global/item_data.gd")
+	load("res://effects/items/double_value_effect.gd")
+	load("res://effects/items/charm_effect.gd")
 	ModLoaderLog.info("romance charm init", RC_LOG)
 
 
@@ -66,22 +72,26 @@ func _ready() -> void:
 	# crash), so we load the tres without an icon and assign an ImageTexture
 	var cl = get_node_or_null("/root/ModLoader/Darkly77-ContentLoader/ContentLoader")
 	if cl != null and cl.has_method("load_data_by_dictionary"):
-		var item = load("res://mods-unpacked/" + MOD_DIR + "content/items/revival_coin/revival_coin_data.tres")
-		if item != null:
-			item.icon = _load_texture_from_disk(ModLoaderMod.get_unpacked_dir() + MOD_DIR + "content/items/revival_coin/revival_coin_icon.png")
-			cl.load_data_by_dictionary({"items": [item]}, "LocalMods-RomanceCharm")
+		var coin = load("res://mods-unpacked/" + MOD_DIR + "content/items/revival_coin/revival_coin_data.tres")
+		var charm_coin = load("res://mods-unpacked/" + MOD_DIR + "content/items/charm_coin/charm_coin_data.tres")
+		if coin != null and charm_coin != null:
+			var unpacked = ModLoaderMod.get_unpacked_dir() + MOD_DIR
+			coin.icon = _load_texture_from_disk(unpacked + "content/items/revival_coin/revival_coin_icon.png")
+			charm_coin.icon = _load_texture_from_disk(unpacked + "content/items/charm_coin/charm_coin_icon.png")
+			cl.load_data_by_dictionary({"items": [coin, charm_coin]}, "LocalMods-RomanceCharm")
 			# ContentLoader's unlock pass pushes the string my_id, but the shop
 			# pool checks my_id_hash (int) — custom items would never roll.
-			# Unlock it properly ourselves; this runs before _install_data builds
-			# the tier pools, so the coin lands in the shop pool on time
-			var coin_hash = Keys.generate_hash(COIN_ID)
-			if not ProgressData.items_unlocked.has(coin_hash):
-				ProgressData.items_unlocked.push_back(coin_hash)
-			ModLoaderLog.info("revival coin registered", RC_LOG)
+			# Unlock them properly ourselves; this runs before _install_data
+			# builds the tier pools, so both coins land in the shop pool on time
+			for id in [COIN_ID, CHARM_COIN_ID]:
+				var h = Keys.generate_hash(id)
+				if not ProgressData.items_unlocked.has(h):
+					ProgressData.items_unlocked.push_back(h)
+			ModLoaderLog.info("revival coin + charm coin registered", RC_LOG)
 		else:
-			ModLoaderLog.error("revival coin tres failed to load", RC_LOG)
+			ModLoaderLog.error("coin tres failed to load (revival=%s, charm=%s)" % [coin != null, charm_coin != null], RC_LOG)
 	else:
-		ModLoaderLog.error("ContentLoader node not found, revival coin unavailable", RC_LOG)
+		ModLoaderLog.error("ContentLoader node not found, coins unavailable", RC_LOG)
 	set_process(true)
 
 
@@ -100,12 +110,16 @@ func _add_translations() -> void:
 		var zh = Translation.new()
 		zh.locale = locale
 		zh.add_message("ITEM_REVIVAL_COIN", "复活币")
-		zh.add_message("EFFECT_REVIVAL_COIN", "每波结束时，从场上仍存活的被魅惑小怪中随机绑定一只；之后每波开始时它以魅惑状态满血参战（数值随波次增长），战死后下一波重新归来。被诅咒时绑定两只")
+		zh.add_message("EFFECT_REVIVAL_COIN", "战斗中从场上仍存活的被魅惑小怪中随机绑定一只；之后每波它以魅惑状态满血参战（数值随波次增长），战死后下一波重新归来。被诅咒时绑定两只")
+		zh.add_message("ITEM_CHARM_COIN", "魅惑币")
+		zh.add_message("EFFECT_CHARM_COIN", "攻击命中生命值低于30%的敌人时，有1%概率将其魅惑（最多持有5个）。被诅咒时：概率提升至2%，且生命值低于60%的敌人追加1%概率")
 		TranslationServer.add_translation(zh)
 	var en = Translation.new()
 	en.locale = "en"
 	en.add_message("ITEM_REVIVAL_COIN", "Revival Coin")
-	en.add_message("EFFECT_REVIVAL_COIN", "At the end of each wave, binds a random charmed enemy still alive on the field. It joins every following wave charmed at full HP (stats scale with waves); if it dies, it returns next wave. Binds two when cursed")
+	en.add_message("EFFECT_REVIVAL_COIN", "Binds a random charmed enemy still alive on the field. It joins every following wave charmed at full HP (stats scale with waves); if it dies, it returns next wave. Binds two when cursed")
+	en.add_message("ITEM_CHARM_COIN", "Charm Coin")
+	en.add_message("EFFECT_CHARM_COIN", "Hits on enemies below 30% HP have a 1% chance to charm them (max 5). When cursed: 2% chance, plus an extra 1% window on enemies below 60% HP")
 	TranslationServer.add_translation(en)
 
 
@@ -373,7 +387,29 @@ func _reset_run_state() -> void:
 	_boss_records.clear()
 	_coin_allies.clear()
 	_coin_bindings.clear()
-	_charmed_alive_species.clear()
+	_charmed_alive_species.clear()# Each cursed charm coin injects an extra charm window (+1% under 60% HP) into
+# the player's charm effects at runtime; the base 2%@30% boost comes from the
+# vanilla curse pass doubling the effect value. Existing windows are counted
+# live so a resumed save can't desync the count
+func _reconcile_charm_coins() -> void:
+	var cursed := 0
+	for item in RunData.get_player_items_ref(0):
+		if item != null and item.my_id == CHARM_COIN_ID and item.is_cursed:
+			cursed += 1
+	var arr = RunData.get_player_effects(0)[Keys.charm_on_hit_hash]
+	var existing := 0
+	for e in arr:
+		if e is Array and e == [Keys.stat_max_hp_hash, 1, 60]:
+			existing += 1
+	while existing < cursed:
+		arr.push_back([Keys.stat_max_hp_hash, 1, 60])
+		existing += 1
+	while existing > cursed:
+		var idx = arr.find([Keys.stat_max_hp_hash, 1, 60])
+		if idx == -1:
+			break
+		arr.remove(idx)
+		existing -= 1
 
 
 func _on_wave_begin(spawner, main) -> void:
@@ -466,6 +502,7 @@ func _scan(spawner, main) -> void:
 	# wave-end cleanup is dead but must keep its record for the carry-over.
 	# Real deaths erase their record in _on_boss_died; run resets clear the rest.
 	_reconcile_coins()
+	_reconcile_charm_coins()
 
 	# bind empty coin slots as soon as a charmed ally exists, and spawn the
 	# new ally immediately — wave-end binding stays as a fallback, but a coin
@@ -543,7 +580,7 @@ func _on_boss_died(enemy, _args) -> void:
 		return
 	if not _player_has_charm_source():
 		return
-	if not Utils.get_chance_success(BOSS_CHARM_CHANCE):
+	if not Utils.get_chance_success(_boss_charm_chance()):
 		return
 	var scene_path = enemy.filename
 	if scene_path.empty() and enemy.has_meta("rc_scene_path"):
@@ -673,6 +710,19 @@ func _player_has_charm_source() -> bool:
 	if RunData.get_player_effect(Keys.charm_on_hit_hash, 0).size() > 0:
 		return true
 	return RunData.existing_weapon_has_effect(Keys.charm_on_hit_hash)
+
+
+# romantic already hits 100% charm on small fry late game, so owning a charm
+# coin on him instead improves the boss revive-charm rate
+func _boss_charm_chance() -> float:
+	var chance = BOSS_CHARM_CHANCE
+	var character = RunData.get_player_character(0)
+	if character != null and character.my_id == "character_romantic":
+		for item in RunData.get_player_items_ref(0):
+			if item != null and item.my_id == CHARM_COIN_ID:
+				chance += BOSS_CHARM_ROMANTIC_BONUS
+				break
+	return chance
 
 
 # ---------------- regen link ----------------
