@@ -286,6 +286,10 @@ func _boss_magnet_roll(spawner, main) -> void:
 			charmed_power += power
 		else:
 			hostile_power += power
+	# no charm army, no magnet — the "hostile is empty" clamp below is for
+	# full conversion, not for empty fields (wave start / all dead gaps)
+	if charmed_power <= 0:
+		return
 	# full conversion (nothing hostile left) = maximum pressure, not a free pass
 	var ratio = BOSS_MAGNET_RATIO_CLAMP if hostile_power <= 0 else float(charmed_power) / float(hostile_power)
 	if ratio < BOSS_MAGNET_MIN_RATIO:
@@ -535,7 +539,10 @@ func _revive_boss(record, main) -> void:
 		return
 	var pos = record.get("pos")
 	if pos == null:
-		pos = _get_player_pos(main)
+		# carried bosses have no death position; spawn at a random spot in the
+		# zone instead of right on the player's face (a boss materializing on
+		# top of you and instantly charging looks and feels like an attack)
+		pos = spawner.get_spawn_pos_in_area(_get_player_pos(main), -1, 100)
 	var args = EntitySpawner.SpawnEntityArgs.new(pos, EntityType.BOSS)
 	var boss = spawner.spawn_entity(scene, args, null, null, -1)
 	if boss == null:
