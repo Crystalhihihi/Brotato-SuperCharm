@@ -2,21 +2,115 @@
 
 ## 项目是什么
 
-Brotato（土豆兄弟，含深海魔怪 DLC）的本地 mod「RomanceCharm」，增强魅惑机制。
-源码：`D:\BrotatoMods\RomanceCharm\mods-unpacked\LocalMods-RomanceCharm\`
+Brotato（土豆兄弟，含深海魔怪 DLC）的本地 mod「SuperCharm」（旧名 RomanceCharm，v45 改名），增强魅惑机制。
+源码：`D:\BrotatoMods\RomanceCharm\`（**仓库根目录即 mod 源码**：manifest.json/mod_main.gd/icon.png/content/effects；pack.sh 打包时用临时目录拼出 `mods-unpacked/Crystalhihihi-SuperCharm/` 结构。项目根目录名仍是 RomanceCharm，懒得动）
 打包安装：项目根目录 `bash pack.sh`（**游戏必须先关闭**，否则 zip 被占用写入失败），
 会生成 zip 到 `D:\SteamLibrary\steamapps\workshop\content\1942280\3796234584\RomanceCharm.zip`。
 
 **重要**：这个游戏只扫描「已订阅工坊条目」的文件夹里的 zip（加载器逻辑见
 `load_steam_workshop_zips`，只认 `int(文件夹名) in 已订阅列表`）。
 
-**已发布**：自己的工坊条目 ID = **3796234584**（2026-09-06 用 GodotWorkshopUtility 上传，
-标题超级魅惑 SuperCharm）。zip 已迁移到自己条目文件夹，UnlockAll 寄生 zip 已删除。
-更新 mod 流程：改代码 → pack.sh（游戏需关闭）→ GodotWorkshopUtility 填 ID 3796234584
-点 Upload。注意：自己条目更新后 Steam 会重新下载覆盖本地 zip → 本地改动后重新跑 pack.sh。
+**已发布**：工坊条目现状（2026-09-06 晚，上传时 ID 栏留空导致新建了两个条目）：
+- **3796762706 = 当前正式条目**，内容 = v32（1.0.32，md5 076e2b33bd9d9b7b65b6032a0133d22f，
+  已与本地 zip 逐字节核对一致），本地工坊文件夹已同步，游戏实际加载的就是它
+- 3796234584 = 最初条目（旧内容，本地已不在订阅文件夹里）
+- 3796761447 = 重复创建的条目（没订阅没下载）
+- **待办：上 Steam 工坊页把 3796234584 和 3796761447 删除/隐藏，只留 3796762706**
+- 也可反向操作：想用回旧 ID 就往 3796234584 传 v32（**ID 栏必须填**，留空 = 新建条目），
+  删掉两个新条目，重新订阅旧条目
+更新 mod 流程：改代码 → 打包（`bash pack.sh`，游戏需关闭）→
+GodotWorkshopUtility 内容选 publish/ 里的 zip + preview.png，**ID 栏填 3796762706** 点 Upload。
+注意：条目更新后 Steam 会重新下载覆盖工坊文件夹的 zip。
 另：发布前在游戏目录建了 `steam_appid.txt`（内容 1942280），是工具初始化的前提。
+描述文案在 `publish/description.txt`（中英双语，含双币）。
+**已开源**：GitHub `Crystalhihihi/Brotato-SuperCharm`（main 分支，MIT；README 中英双语，
+截图在 screenshots/）。本地 git 为 github.com 配了仓库级代理 `127.0.0.1:7897`（直连不通；
+代理没开时 push 失败就 `git config --unset http.proxy && git config --unset https.proxy`）。
+**commit message 用短句**（如 `v46：修简中标签`）：GitHub 文件列表每行都显示该文件最后
+一次提交的信息，长消息被截断成一排省略号，很乱。
+**上传 zip 的文件名会成为条目标题**（3796762706 的标题就是 22:37 传
+"超级魅惑 SuperCharm.zip" 时变的；详情页标题渲染有服务端缓存，改后要等几小时才刷新）。
+标题想保持「超级魅惑 SuperCharm」就上传 `publish/超级魅惑 SuperCharm.zip`。
+**本地实测捷径**（跳过上传）：把新 zip 覆盖到
+`D:\SteamLibrary\steamapps\workshop\content\1942280\3796762706\` 即可直接开游戏测——
+注意该文件夹里**同时只能存在一个 zip**（加载器 `load_zips_in_folder` 会加载文件夹里
+所有 zip，两个 zip 会重复加载/按序覆盖，结果不可控）。**且 Steam 会按上次上传的
+文件名重新下载该条目内容**（上次传的是"超级魅惑 SuperCharm.zip"，Steam 就按这个名
+存盘）→ 本地覆盖时用**同名文件**覆盖，别用别的名字塞进去，否则 Steam 校验后会把自己
+那份再下回来，变成两个 zip。
 
-## mod 当前功能（v26 / manifest 1.0.26，已打包安装，zip 输出到自己工坊条目 3796234584）
+## mod 当前功能（v45 / manifest 1.0.45，已打包 publish/RomanceCharm.zip（md5 bb4b4e4c5710814749007c9e324be500）并覆盖本地工坊文件夹 3796762706（文件名"超级魅惑 SuperCharm.zip"）；启动验证 0 脚本错误、物品注册正常；配置存取链路实战验证；10 语言游戏内翻译）
+
+**v45 改名**：mod ID `LocalMods-RomanceCharm` → `Crystalhihihi-SuperCharm`（manifest name/namespace、
+zip 内文件夹、mod_main.gd 的 RC_LOG/MOD_DIR/ContentLoader 注册名、3 处 tres ext_resource
+路径全部同步）。**配置目录随之变为 `configs/Crystalhihihi-SuperCharm/`，旧配置孤儿化即
+重置默认（玩家同意不迁移）**。物品 my_id 不变，存档/解锁不受影响；Steam 标题与物品
+翻译 msgid 均不动。游戏内 mod 列表现在显示 `Crystalhihihi-SuperCharm`。
+
+- 游戏内翻译（v43）：en/zh_Hans 原有，新增 zh_Hant/ru/es/pt_BR/de/fr/ja/ko 共 10 语言
+  （物品名、物品描述、2 个配置 tooltip）。**配置键中文标签的本地化技巧**：ModOptions
+  菜单显示的是 `config_key.to_upper()`（中文键名不受大小写影响），给 Godot 注册
+  msgid=中文键名 的翻译即可让其他语言玩家看到本地化标签——键名不动，存档配置零迁移。
+  Godot 3 控件文本默认自动 tr()。多语言工坊文案在 publish/description_i18n.txt。
+  **v44 修正（踩坑：简中显示繁体）**："中文玩家匹配不到翻译、回退显示键名原文"是
+  **错的**——Godot 3 在最佳匹配翻译里找不到 msgid 时会继续翻**同语言的其他翻译**，
+  zh_TW 块的映射会赢，简中玩家看到繁体。必须给 zh 三个 locale 的块注册
+  **键名→键名的恒等映射**占位（mod_main.gd `_add_translations`）。
+
+-4.7. **无尽性能治本（v35/v36）**：v34 的返还 cap 只挡住崩溃，没减 mod 自身开销。砍三块：
+   ① **钉死魅惑单位的 vanilla 重索敌**：魅惑行为 `update_target` 每 0.25s 为每个魅惑
+   怪全表扫描一次敌人列表（60 魅惑 × 160 敌 × 4/s ≈ 4 万次距离计算/秒纯 GDScript，
+   无尽二次方税）。`_setup_charmed_ally` 把 `enemy.update_target_timer` 钉成 -99999
+   （vanilla `_physics_process` 的 0.25s 节拍永远攒不到），0.1s 纠察队成为唯一索敌
+   来源——开销消失，且 0.25s"叛变窗口"从机制上消失（不再是赛跑，vanilla 压根不重选）。
+   **死亡时必须还原为 0**（`_on_charmed_ally_died` 第一行）：entity_spawner 池化复用
+   死节点，钉死的定时器被带回去的敌对怪会永远不换目标（AI 废掉）。
+   ② **魅惑小怪上限 + 确定性裁军（v36 起玩家可配）**：超过上限的魅惑怪本来是被
+   vanilla 在每次刷怪时点**随机处死**（entity_spawner.gd on_group_spawn_timing_
+   reached：enemies.size() > max_enemies 就从整个敌人列表随机抽杀，魅惑怪在名单里，
+   can_drop_loot=false 不掉落）——"魅惑怪莫名消失"观感的真凶。改成 mod 自己杀：
+   **最大生命最低优先、同血杀离玩家最远的**、复活币绑定怪豁免、同样不掉落。
+   上限同时是 max_enemies 返还 cap，二者恒等对齐。
+   ③ **魅惑怪之间取消身体碰撞**（v36）：charm() 把 body mask 设成 PETS+OBSTACLES，
+   `_setup_charmed_ally` 改回只留 OBSTACLES_BIT——密集大军每帧省一大片
+   move_and_slide 配对结算。敌我判定走 hitbox/hurtbox 不走身体，无战斗影响；
+   死亡时 uncharm() 自动还原原 mask。代价纯视觉：大军会叠着站。
+   **玩家配置（v36）**：manifest config_schema + ModLoaderConfig（照抄 QMtato 模式，
+   config 名固定 `config_created_by_mod_options`），两个键：`RC_SWARM_CAP`
+   （integer 默认 100，mod 侧 clamp 0~1000）、`RC_SWARM_UNLIMITED`（bool 默认 false，
+   无上限 = 回到 v33 崩溃风险区，玩家自选）。装了 dami-ModOptions 可在游戏内 mod
+   列表直接改（setting_changed 实时生效）；没装也能手编
+   `user://configs/Crystalhihihi-SuperCharm/config_created_by_mod_options.json`（v45 改名后
+   的路径；改名前为 configs/LocalMods-RomanceCharm/）。
+   另：**复活币绑定改加权随机**（v36）——`_bindable_species` 的值从 true 改成该物种
+   见过的最大生命，`_pick_weighted_species` 按 max HP 加权，血厚物种优先被绑。
+   底层改不了的部分：单实体物理/碰撞成本（move_and_slide 原生）、原版无尽自己
+   max_enemies=100 + 每波 2 boss（wave_data.gd:5）、敌对怪扫 targetable_pets 的
+   原版索敌、波末全场同时 die() + 自动存档的卡一下（main.gd:946/998，vanilla 行为）
+
+-4.5. **魅惑单位索敌纠察（v34 修"集体叛变"）**：vanilla `Enemy.update_target` 每 0.25s
+   先选最近玩家/宠物，魅惑行为的 `update_target`（charm_enemy_effect_behavior.gd:139）
+   **只在场上存在 ENEMIES_BIT 单位时**才把目标覆盖成敌人 → 波次开头小怪还在出生
+   动画、或无尽刷怪组间隙全场零敌对时，所有魅惑单位（含跨波 boss）目标 fallback
+   到玩家，集体冲向玩家几秒钟，观感=叛变（实际打不到玩家：hitbox 忽略列表挡着）。
+   修复：`_police_charmed_targets` 以 0.1s 节拍跑（vanilla 0.25s 重选，稳赢；
+   每帧跑在无尽几百实体下自身就是负载），魅惑单位（collision_layer==PETS_BIT
+   快速区分）当前目标不是敌对怪时改指最近敌对怪；零敌对时指**离玩家最远的
+   友军**让大军散去场上集结；孤身一怪则不动（跟着玩家没事，反正零伤害）。
+   目标失效安全：follow_target_movement_behavior.gd:18 对 invalid target
+   有判空。不改 vanilla 文件，纯运行时覆写 current_target
+   **注意后续修正（v34 实测反馈）**：用户开局能把"叛变"boss 打死 → 那些其实是
+   **真敌对 boss**（魅惑怪 hurtbox 在 PETS_BIT，玩家武器物理上打不到）。来源 =
+   无尽波初 vanilla 自刷 boss/精英 + 磁石刷的 boss（磁石 boss 设计上先敌对，
+   死后 10% 复活才变自己人——秒杀后 0.6s 蓝色归来，观感="叛变几秒又反正"）。
+   且魅惑 boss 在无尽常被敌方集火战死，携带链断属正常（日志 01:02 后无 carrying）
+-4.6. **无尽实体过载崩溃（v34 缓解）**：闪退局日志 = 01:17:40 磁石刷 boss 后几千条
+   `Can't change this state while flushing queries`（area_set_shape_disabled）刷屏
+   中断，无正常退出记录 = 引擎层硬崩。根因 = 实体过载：max_enemies 返还（v25）原来
+   是"基础值+魅惑数"无上限，无尽魅惑大军几百只 → 同屏上限同步爆炸 + 磁石 boss +
+   币小弟 → 物理服务器压垮。修复：返还加 cap `MAX_ENEMIES_REFUND_CAP = 60`；
+   顺手补 `_spawn_charmed_enemy` 缺的 `_cleaning_up` 守卫（踩坑 13 家族最后一个
+   敞口）。无尽崩溃若再复现，下一步看实体总数和 curse 刷怪频率
 
 -4. **魅惑币（红装 tier=3，100 块，max_nb=5，红底紫心图标）**：CharmEffect
    （key=stat_max_hp, custom_key=charm_on_hit, value=1, value2=30, KEY_VALUE）→
@@ -39,11 +133,14 @@ Brotato（土豆兄弟，含深海魔怪 DLC）的本地 mod「RomanceCharm」�
    boss 从当前 zone 的 elites+bosses 池随机选，EntityType.BOSS spawn 自带波次缩放。
    spawn 时 `set_meta("rc_scene_path", scene.resource_path)` 兜底。
    日志：`charm swarm attracted a boss (charm power ratio ...)`
-   **v22 起加波次闸门**：第 8 波前磁石不启动（BOSS_MAGNET_MIN_WAVE）——原版第一个精英
+   **v22 起加波次闸门**：第 8 波前磁石不启动（BOSS_MAGNET_MIN_WAVE，v33 起改为 10 波）——原版第一个精英
    第 10 波左右才露面，前期魅惑凑 3 只很费劲，boss 落地瞬清场 = 纯惩罚死循环。
    **v23 起**：磁石 boss 改**地图边缘**生成（`get_spawn_pos_in_area(..., true)`，不再
-   刷脸上）；在场上限按波次表 `clamp(1+(wave-8)/4, 1, 4)` = 8/12/16/20 波 → 1/2/3/4 只，
-   无尽加成照旧。非魅惑构筑（无浪漫之人/长笛）下 mod 完全惰性：魅惑不触发 → 磁石不达标、
+   刷脸上）。**v33 调难度**：启动闸门 8→10 波（与上限表对齐）；在场上限按波次表
+   `clamp(1+(wave-10)/5, 1, 3)` = 10/15/20 波 → 1/2/3 只（旧表 8/12/16/20 →
+   1/2/3/4），且上限改为**数全场存活的敌对 boss/精英**（原版波次开局刷的占名额，
+   魅惑 boss 友军不占；不再只数磁石自己刷的——`_magnet_bosses` 字典删除，清点合并
+   进磁石每 4s 的全场扫描循环）。无尽加成照旧。非魅惑构筑（无浪漫之人/长笛）下 mod 完全惰性：魅惑不触发 → 磁石不达标、
    币空槽、boss 复活跳过。币对非魅惑局是白板，备选未做：无魅惑来源时币不进商店池。
    注：`_charmed_alive_species` 只统计普通怪（复活币不绑 boss，boss 跨波有
    专门的 `_boss_records` 通道）
@@ -83,6 +180,16 @@ Brotato（土豆兄弟，含深海魔怪 DLC）的本地 mod「RomanceCharm」�
    诅咒版绑两只。图标是自己用 PIL 画的像素金币爱心（revival_coin_icon.png）。
    v18 加了诊断日志：`coin binding created/erased`、`coin respawn check N/M`、
    `coin ally spawned/failed`
+   **v33 修复"有 2 个复活币但每波只复活 1 只"**：绑定槽从按物品 instance_id 键控
+   （`_coin_bindings` 字典）改成按数量计数（`_coin_slots` 数组）——原版商店买非诅咒
+   道具不 duplicate，两个币是同一共享实例 → 同 id → 只建了一个绑定（见踩坑 23）。
+   槽位数 = 币数 + 诅咒币额外数；卖币/丢币时优先丢空槽，全满才丢最新绑定
+   **v33 还改了绑定候选**：币小弟不再做新币的绑定候选（新增 `_bindable_species`
+   = 魅惑物种集合减去 `_coin_allies`）——旧逻辑下买第二个币，下一波开局场上唯一
+   的魅惑怪就是第一个币的小弟 → 新币直接克隆同款（用户实测以为是 bug）。现在新币
+   要等魅惑到"真怪"才绑定（魅惑构筑开波几秒内就会绑上），不再开局克隆。
+   注意 `_charmed_alive_species` 仍含币小弟（max_enemies 返还按它计数），两个字典
+   用途不同，别合并
 
 ## 关键架构
 
@@ -104,7 +211,7 @@ Brotato（土豆兄弟，含深海魔怪 DLC）的本地 mod「RomanceCharm」�
     两层**：mod 节点下还有个名叫 ContentLoader 的子节点（QMtato mod_main.gd:107 同款）。
     v2~v5 只写了第一层 → "ContentLoader node not found"，复活币静默不可用。
     然后 `load(res://...tres)` 拿道具资源 → `item.icon = 运行时 ImageTexture` →
-    `cl.load_data_by_dictionary({"items": [item]}, "LocalMods-RomanceCharm")`。
+    `cl.load_data_by_dictionary({"items": [item]}, "Crystalhihihi-SuperCharm")`（v45 前为 "LocalMods-RomanceCharm"）。
     **不要**用 tres 里 ext_resource 直接引用 png：导出版没有导入器，需要 .import/.stex
     元数据（QMtato 的 zip 里带了一堆 .stex 才行），裸 png → "No loader found for resource"
     → 整条资源链 parse 失败 → mod_data=null → ContentLoader 崩（1.0.4 闪退事故）。
@@ -183,13 +290,22 @@ Brotato（土豆兄弟，含深海魔怪 DLC）的本地 mod「RomanceCharm」�
     init_stats 里有、hash_to_string 里有）→ 固定 1%/币。诅咒注入窗口同步改
     [structure_range,1,60]。**注意：换占位属性时必须确认它在 init_stats 和
     Keys.hash_to_string 里都存在，否则 get_stat/get_stat_gain 会 null 崩。**
-22. **道具描述显示 "Null"（v28/1.0.28 修复）**：道具面板的 effect 文本走
-    `Effect.get_text → Text.text(tr(key), args)` 管线。两个坑：(a) CharmEffect.get_args
-    会查刻度属性的小图标（`ItemService.get_stat_small_icon`），`structure_range` 没有图标
-    资源 → null.small_icon 崩 → get_text 返回 null → 显示 "Null"；(b) 基类 get_args 对
-    key="" 的效果跑 `tr("")` → Godot 3 返回 "Null"（复活币 marker 从 v1 就坏，没人截图发现）。
-    修复：自定义效果类**覆写 get_text 直接 return tr(文本key)**，绕过参数/图标管线。
-    **教训：自定义效果的 text_key 文本如果不需要占位符，就覆写 get_text；别依赖基类管线。**
+22. **道具描述显示 "Null"（v32/1.0.32 根治，已实测确认）**：
+    **真正的根因：在 ModLoader 初始化的同一帧里用 `Translation.new() +
+    TranslationServer.add_translation` 注册运行时翻译，长文本会被这个定制引擎写坏**
+    ——en 环境读出 "2"、zh 环境读出 "Null"；短文本（物品名）不受影响。用
+    `Brotato.exe -s 脚本.gd`（无窗口跑引擎，脚本 extends SceneTree，结果写
+    user:// 文件）做了对照实验：同样的文本同样的键名，禁用本 mod 后注册 = 干净；
+    本 mod 在 _ready 里注册 = 乱码。与效果类、ContentLoader、QMtato、超市界面全部无关。
+    **修复 = 把 `_add_translations` 推迟 0.5s**（`create_timer(0.5).connect("timeout",
+    self, "_add_translations")`），避开初始化帧。
+    v28~v30 的弯路记录（别再走）：覆写 get_text / 覆写 get_args 返回 [] / 注册
+    ItemService.effects 都不治标。顺带做的正确改动保留：① 效果 tres 挂**原版类**
+    （魅惑币 = vanilla `charm_effect.gd`，marker = vanilla `effect.gd` 配
+    `key=stat_luck, value=0` 纯描述行，key 不能留空——基类 get_args 会跑 tr("")）；
+    ② 自定义效果类仍注册在 ItemService.effects，仅为兼容 v25~v29 旧存档。
+    **教训：① 运行时注册翻译不要在 mod _ready 里做，延迟 0.5s；② 排查显示问题先写
+    探针/用 -s 无界面实测，别空想。**
 17. **空场期误刷 boss（v19/1.0.19 修复）**：磁石的"敌方清零=顶格"分支没排除
     `charmed_power == 0`——开局怪还没刷、或怪死光的空档期，双方都是 0 → 比值顶格 →
     70% 狂刷 boss（"前期没魅惑也出 boss"）。修复：`charmed_power <= 0` 直接 return。
@@ -212,6 +328,70 @@ Brotato（土豆兄弟，含深海魔怪 DLC）的本地 mod「RomanceCharm」�
     全局禁用 mod。被禁用的那次启动不会产生 mod 错误日志，所以再下次启动又自动恢复。
     表现出来就是闪退后隔一次启动 mod 消失。和存档（save_v3_0.json）无关；mod 解锁状态在
     `mod_user_profiles.json`。只要 mod 不报错不闪退，开关就一直在。
+24. **魅惑怪"叛变"是索敌 fallback 不是状态翻转（v34/1.0.34）**：vanilla 没有任何
+    临时解除魅惑的路径（uncharm 只在死亡时调，CharmTimer 已停），魅惑 boss 集体
+    冲玩家 = `Enemy.update_target` 每 0.25s 重选最近玩家/宠物，而魅惑行为只在
+    场上存在敌对单位时才覆盖目标（charm_enemy_effect_behavior.gd:139）。零敌对
+    窗口（波初出生动画期、无尽刷怪组间隙）= 全员索敌玩家。排查"状态异常"先分清
+    是状态真变了还是行为/观感变了——后者便宜得多。修复见功能 -4.5（每帧索敌纠察）。
+25. **钉死 vanilla 实例变量做运行时接管，死亡时必须还原（v35/1.0.35）**：为了掐掉
+    魅惑行为每 0.25s 全表扫描的二次方税，把魅惑怪的 `update_target_timer` 钉成
+    -99999 让 vanilla 永不重选（mod_main.gd `_setup_charmed_ally` 末尾）。坑在
+    entity_spawner **池化复用死节点**：不还原的话，这个被钉死的定时器跟着节点回到
+    池里，下次作为普通敌对怪复活 = 永远不换目标、AI 废掉。所以
+    `_on_charmed_ally_died` 第一行必须 `update_target_timer = 0.0`。同类教训和
+    踩坑里 hurtbox/hitbox/knockback 的 meta 存还原一脉相承：**所有写进 vanilla
+    实例的运行时覆写，死时都要清点还原**。
+    另：vanilla 自己的"性能裁军"是随机抽杀（on_group_spawn_timing_reached 里
+    enemies.size() > max_enemies 就 `Utils.get_rand_element(enemies)` 处死，
+    魅惑怪也在名单里）——魅惑军团超额时别指望它"自然调节"，那是随机蒸发，
+    要自己确定性裁（功能 -4.7②）。
+26. **dami-ModOptions 只渲染四种 schema 类型，"integer"会被静默丢弃（v37/1.0.37）**：
+    它的 `mods_config_interface.gd flatten_properties` 只认 `"number"`（滑条，支持
+    minimum/maximum/multipleOf/format）、`"boolean"`（勾选框）、string+`enum`
+    （下拉框）、string+`format:"color"`（取色器）。数值配置写 `"type":"integer"`
+    不报错也不渲染，界面上直接消失。数值项必须写 `"number"`，并且**显式给
+    `"format":"%.0f"`**——默认 format 是 percent，100 会显示成百分比。mod 侧读取
+    用 `int()` 转换即可（滑条给的是 float）。另：配置键的 title/tooltip 写翻译键
+    （如 RC_CONFIG_CAP_TITLE）能被正常翻译显示（mod 里 TranslationServer 注册）。
+    **配置键本身就是 UI 显示文本**（滑条 `_label` 和 CheckButton 都是
+    `config_key.to_upper()`），想要漂亮标签就直接用中文键名（v38 起 =
+    "魅惑大军上限"/"无上限模式"），schema 里就别再放 title 了（否则标签重复）。
+    改键名是破坏性变更：老配置文件里还是旧键，读取要做旧键兜底迁移，并且
+    迁移后的值要在 `_init_config` 里写回 `config.data` 再 update_config 存盘——
+    ModOptions flatten 时遇到 null 值会直接不渲染该控件。配合 manifest
+    `load_before: ["dami-ModOptions"]` 保证迁移跑在 ModOptions 建界面之前。
+27. **ModOptions 显示/持久化全链路（v39~v42 三连坑，最终形态）**：
+    ① **ModOptions 只改内存不落盘**：`mods_config_interface.gd
+    on_setting_changed` 只更新内存 `mod_configs` 再转发信号，存盘是 mod 的活
+    （源码注释明写 "TODO, something with this"）→ 处理器里必须写
+    `config.data` + `update_config`（v39）。
+    ② **"default" 配置是 schema 私产，永不持久**：`ModData.load_configs` 每次
+    启动按 manifest config_schema 重建 default 配置（实证：手改 default.json
+    为 329，启动游戏后文件被重写回 100），`update_config` 也直接拒绝存
+    "default"。ModOptions 显示的恰是 `get_current_config` = default
+    （用户档案 current_config 恒为 "default"）→ **界面永远显示 schema 默认值，
+    与玩家实际存储无关**（QMtato 同款隐患，它的开关全是默认 true 才没人发现）。
+    ③ **存储必须用独立命名配置**（"config_created_by_mod_options"，QMtato 模式），
+    并在 `_init_config` 里**直接戳 ModOptions 内存缓存**：
+    `ModsConfigInterface.mod_configs[mod名][键] = 值`（ModOptions 比我们先加载，
+    其 _ready 已从 default 建好缓存，不戳就永远显示默认值）。
+    ④ **写入值必须是 float 不能是 int**：`mod_options_tab.gd:61` 渲染滑条的条件是
+    `config_value is float`，int 导致整行被移除（界面里选项直接消失）。JSON 文件
+    往返是 float，但 GDScript 里 `_swarm_cap` 是 int → 写 cache/config.data 必须
+    `float()` 包一层（v41 的"选项消失"就是这么来的）。
+    另：manifest 里同一 mod 同时列 `optional_dependencies` 和 `load_before` 会
+    报 duplicate 错误，只留 optional_dependencies。
+23. **同名商店道具共享池实例（v33/1.0.33 修"2 币只活 1 只"）**：购买链
+    `base_shop.buy_item` → `ItemService.get_rand_item_from_wave` →
+    `apply_item_effect_modifications` → DLC1 `update_item_effects`，**非诅咒道具全程
+    不 duplicate，直接把 ItemService 池里的共享 .tres 实例推进 RunData.items**
+    （只有 curse_item 才 duplicate；读档恢复是逐个 duplicate 的，安全）。
+    买两个相同非诅咒道具 = items 数组里同一对象两次 → `get_instance_id()` 相同 →
+    **任何按 instance_id 键控玩家道具的逻辑都会塌成一份**。修法：按 my_id 数条目
+    （`_reconcile_charm_coins` 天生免疫就是因为它只数数）。原地改 is_cursed 的只有
+    debug 菜单，正常流程不用担心共享实例被诅咒污染。
+    **教训：玩家道具没有身份，只有数量。要按实例区分同名道具，先自己 duplicate。**
 
 ## 环境
 

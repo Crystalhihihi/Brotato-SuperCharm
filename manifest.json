@@ -1,0 +1,38 @@
+{
+	"name": "SuperCharm",
+	"namespace": "Crystalhihihi",
+	"version_number": "1.0.45",
+	"description": "Permanent charm, boss revive-charm, carry-over bosses, revival coin item",
+	"website_url": "",
+	"dependencies": ["Darkly77-ContentLoader"],
+	"extra": {
+		"godot": {
+			"authors": ["Crystalhihihi"],
+			"optional_dependencies": ["dami-ModOptions"],
+			"compatible_mod_loader_version": ["6.2.0"],
+			"compatible_game_version": ["1.1.4.0"],
+			"incompatibilities": [],
+			"config_schema": {
+				"title": "超级魅惑 SuperCharm",
+				"description": "SuperCharm gameplay options",
+				"type": "object",
+				"properties": {
+					"魅惑大军上限": {
+						"tooltip": "RC_CONFIG_CAP_TOOLTIP",
+						"type": "number",
+						"default": 100,
+						"minimum": 0,
+						"maximum": 500,
+						"multipleOf": 1,
+						"format": "%.0f"
+					},
+					"无上限模式": {
+						"tooltip": "RC_CONFIG_UNLIMITED_TOOLTIP",
+						"type": "boolean",
+						"default": false
+					}
+				}
+			}
+		}
+	}
+}

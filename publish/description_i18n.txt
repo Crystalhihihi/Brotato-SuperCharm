@@ -1,0 +1,185 @@
+超级魅惑 SuperCharm — 多语言工坊文案
+用法：工坊页面「编辑标题与描述」→ 切换语言 → 对应节复制「标题」进标题栏、其余进描述栏。
+简中/英文见 description.txt（已在用）。物品名未本地化统一保留英文 "Charm Coin / Revival Coin" 译名见各节。
+
+==================================================
+English（英语）
+==================================================
+标题： SuperCharm
+（描述用 description.txt 的英文部分，第 7、21-29、31-32 行）
+
+==================================================
+繁體中文
+==================================================
+标题： 超級魅惑/SuperCharm
+
+魅惑流全面強化：永久魅惑、魅惑大軍、boss 收編、雙幣道具。大軍規模可在設定裡調（預設 100，可開無上限），性能已針對大場面優化。
+
+▌功能
+
+- 魅惑不再 8 秒後死亡，小怪魅惑瞬間回滿血
+- 魅惑怪會被敵人鎖定和攻擊（魅惑後 1.5 秒保護期），你的武器不會誤傷牠們
+- 魅惑怪繼承你的擊退屬性，並每秒回復等同於你「生命恢復」的血量
+- boss/精英死亡時 10% 機率魅惑復活（25% 血量、數值凍結在死亡波次），活著就能帶進下一波，每波回復 20%
+- 魅惑大軍會吸引額外 boss：魅惑方戰力越強，來襲的 boss 越多（第 10 波起，同屏上限 10/15/20 波 = 1/2/3 個，計入原版波次 boss，無盡隨波數放寬）
+- 新道具「魅惑幣」（紫裝/T3，限 5 個）：命中生命值低於 30% 的敵人有 1% 機率魅惑；詛咒版 2% 且 60% 血以下追加 1%。浪漫之人持幣時 boss 復活率 10%→15%
+- 新道具「復活幣」（白裝/T1）：+3 生命再生，隨機綁定一種仍存活的被魅惑小怪（偏好血厚的），之後每波滿血魅惑參戰（數值隨波次成長），死了下波再來；詛咒版綁定兩隻
+- 大軍上限可調：預設 100，超限自動裁掉最弱的（復活幣綁定的豁免）；裝 ModOptions 可在遊戲內直接調 0~500 或開無上限，不裝也可改設定檔
+- 大場面性能優化：魅惑怪索敵和碰撞已精簡，幾百隻同屏也不再集體「叛變」或莫名消失
+
+需要：深海魔怪 DLC（Abyssal Terrors）+ Darkly77-ContentLoader
+可選：dami-ModOptions（遊戲內設定介面）
+
+==================================================
+Русский（俄语）
+==================================================
+标题： СуперОчарование/SuperCharm
+
+Раскованное очарование из ванилы: перманентное очарование, настоящая армия очарованных, приручение боссов и два новых предмета. Размер армии настраивается (по умолчанию 100, можно без лимита), производительность оптимизирована для огромных сражений.
+
+▌Возможности
+
+- Очарование больше не истекает через 8 сек; очарованные враги полностью восстанавливают ОЗ
+- Очарованных врагов атакуют другие враги (1,5 сек неуязвимости после очарования); ваше оружие их не задевает
+- Очарованные враги наследуют ваше отбрасывание и каждую секунду восстанавливают ОЗ, равное вашей регенерации ОЗ
+- Боссы/элитные враги с шансом 10% воскресают очарованными при гибели (25% ОЗ, характеристики заморожены на волне смерти), пока живы — переходят на следующую волну и лечатся на 20% за волну
+- Армия очарованных привлекает дополнительных боссов: чем она сильнее, тем больше боссов приходит (с 10-й волны; одновременно не более 1/2/3 на волнах 10/15/20, включая ванильных боссов волны; в бесконечном режиме лимит растёт)
+- Новый предмет «Монета очарования» (тир 3, макс. 5): удары по врагам с ОЗ ниже 30% имеют 1% шанс очаровать; проклятая версия — 2% плюс дополнительный 1% при ОЗ ниже 60%. У Романтика шанс воскрешения боссов растёт с 10% до 15%
+- Новый предмет «Монета воскрешения» (тир 1): +3 к регенерации ОЗ. Привязывается к живому очарованному врагу (предпочитает живучие виды); тот сражается каждую волну очарованным, с полным ОЗ и характеристиками по волне, а после гибели возвращается на следующей. Проклятая версия привязывает двух
+- Лимит армии настраивается: по умолчанию 100, превышение удаляется начиная с самых слабых (привязанные монетой не затрагиваются). С модом ModOptions настройка 0–500 или без лимита прямо в игре, либо через файл конфигурации
+- Оптимизация больших сражений: упрощены поиск цели и коллизии очарованных — сотни юнитов на экране без массового «перехода обратно» и без загадочных исчезновений
+
+Требуется: DLC «Abyssal Terrors» + Darkly77-ContentLoader
+Опционально: dami-ModOptions (настройки внутри игры)
+
+==================================================
+Español（西班牙语）
+==================================================
+标题： Súper Encantamiento/SuperCharm
+
+El encantamiento vanilla desatado: encantamiento permanente, un ejército de encantados de verdad, doma de jefes y dos objetos nuevos. El tamaño del ejército es configurable (100 por defecto, ilimitado opcional), con el rendimiento optimizado para batallas enormes.
+
+▌Características
+
+- El encantamiento ya no expira a los 8 s; los enemigos encantados recuperan todos los PS
+- Los enemigos encantados son el objetivo de los demás enemigos (1,5 s de gracia tras el encantamiento); tus armas nunca les hacen daño
+- Heredan tu retroceso y regeneran PS igual a tu Regeneración de PS
+- Los jefes/élites tienen un 10 % de probabilidad de revivir encantados al morir (25 % de PS, estadísticas congeladas en esa oleada); mientras vivan, te acompañan a la siguiente oleada y se curan un 20 % por oleada
+- Tu ejército atrae jefes extra: cuanto más fuerte es, más jefes aparecen (desde la oleada 10; máximo simultáneo de 1/2/3 en las oleadas 10/15/20, contando los jefes vanilla de la oleada; aumenta en infinito)
+- Objeto nuevo «Moneda de encantamiento» (nivel 3, máx. 5): los golpes a enemigos con menos del 30 % de PS tienen un 1 % de probabilidad de encantar; maldita: 2 % más un 1 % extra por debajo del 60 % de PS. Con Romántico, la revivificación de jefes sube del 10 % al 15 %
+- Objeto nuevo «Moneda de resurrección» (nivel 1): +3 de Regeneración de PS. Vincula un enemigo encantado vivo (prefiere especies resistentes); lucha cada oleada encantado con PS completos y estadísticas según la oleada, y vuelve aunque muera. Maldita vincula dos
+- Límite del ejército configurable (100 por defecto): el exceso se elimina empezando por los más débiles (los vinculados a monedas están exentos). Ajustable de 0 a 500 o ilimitado dentro del juego con ModOptions, o mediante el archivo de configuración
+- Rendimiento optimizado: selección de objetivos y colisiones simplificadas; cientos de aliados en pantalla sin «deserciones» masivas ni desapariciones misteriosas
+
+Requiere: DLC Abyssal Terrors + Darkly77-ContentLoader
+Opcional: dami-ModOptions (ajustes dentro del juego)
+
+==================================================
+Português (Brasil)（葡萄牙语-巴西）
+==================================================
+标题： Super Encantamento/SuperCharm
+
+O encantamento clássico sem correntes: encantamento permanente, um exército de encantados de verdade, doma de chefes e dois itens novos. O tamanho do exército é configurável (padrão 100, ilimitado opcional), com desempenho otimizado para batalhas gigantescas.
+
+▌Recursos
+
+- O encantamento não expira mais após 8 s; inimigos encantados recuperam todos os PV
+- Inimigos encantados passam a ser alvo dos outros inimigos (1,5 s de graça após o encantamento); suas armas nunca os atingem
+- Eles herdam o seu repelimento e regeneram PV iguais à sua Regeneração de PV
+- Chefes/elites têm 10% de chance de reviver encantados ao morrer (25% de PV, atributos congelados na onda da morte); enquanto vivos, seguem você para a próxima onda e curam 20% por onda
+- Seu exército atrai chefes extras: quanto mais forte, mais chefes aparecem (a partir da onda 10; limite simultâneo de 1/2/3 nas ondas 10/15/20, contando os chefes vanilla da onda; aumenta no infinito)
+- Item novo «Moeda de Encantamento» (nível 3, máx. 5): golpes em inimigos com menos de 30% de PV têm 1% de chance de encantar; amaldiçoada: 2%, mais 1% extra abaixo de 60% de PV. Com Romântico, a chance de reviver chefes sobe de 10% para 15%
+- Item novo «Moeda de Ressurreição» (nível 1): +3 de Regeneração de PV. Vincula um inimigo encantado vivo (prefere espécies resistentes); ele luta em toda onda encantado com PV cheios e atributos escalados pela onda, e volta mesmo se morrer. Amaldiçoada vincula dois
+- Limite do exército configurável (padrão 100): o excesso é eliminado começando pelos mais fracos (vinculados a moedas são isentos). Ajuste de 0 a 500 ou ilimitado dentro do jogo com ModOptions, ou pelo arquivo de configuração
+- Desempenho otimizado: mira e colisões simplificadas; centenas de aliados na tela sem «traições» em massa nem desaparecimentos misteriosos
+
+Requer: DLC Abyssal Terrors + Darkly77-ContentLoader
+Opcional: dami-ModOptions (configurações dentro do jogo)
+
+==================================================
+Deutsch（德语）
+==================================================
+标题： Superverzauberung/SuperCharm
+
+Der Vanilla-Zauber ohne Leine: permanente Verzauberung, eine echte Armee Verzauberter, Boss-Zähmung und zwei neue Items. Die Armeestärke ist konfigurierbar (Standard 100, optional unbegrenzt), performance-optimiert für riesige Schlachten.
+
+▌Features
+
+- Verzauberung endet nicht mehr nach 8 s; verzauberte Gegner werden vollständig geheilt
+- Verzauberte Gegner werden von Feinden anvisiert und angegriffen (1,5 s Schonfrist nach der Verzauberung); deine Waffen treffen sie nie
+- Sie erben deinen Rückstoß und regenerieren jede Sekunde LP in Höhe deiner LP-Regeneration
+- Bosse/Eliten haben beim Tod eine 10-%-Chance, verzaubert wiederzubeleben (25 % LP, Werte eingefroren auf der Todeswelle); solange sie leben, folgen sie dir in die nächste Welle und heilen 20 % pro Welle
+- Deine Armee lockt zusätzliche Bosse an: je stärker sie ist, desto mehr Bosse erscheinen (ab Welle 10; gleichzeitig max. 1/2/3 auf den Wellen 10/15/20, Vanilla-Wellenbosse eingerechnet; skaliert im Endlosmodus)
+- Neues Item „Zaubermünze“ (Stufe 3, max. 5): Treffer auf Gegner unter 30 % LP haben 1 % Verzauberungschance; verflucht: 2 % plus zusätzlich 1 % unter 60 % LP. Beim Romantiker steigt die Boss-Wiederbelebung von 10 % auf 15 %
+- Neues Item „Wiederbelebungsmünze“ (Stufe 1): +3 LP-Regeneration. Bindet einen lebenden verzauberten Gegner (bevorzugt zähe Arten); er kämpft jede Welle verzaubert mit vollen LP und wellen-skalierenden Werten, und kehrt nach dem Tod wieder. Verflucht bindet zwei
+- Armeelimit konfigurierbar (Standard 100): Überschuss wird entfernt, schwächste zuerst (münzgebundene ausgenommen). Im Spiel mit ModOptions 0–500 oder unbegrenzt einstellbar, sonst per Konfigurationsdatei
+- Performance-optimiert: Zielsuche und Kollisionen verschlankt — Hunderte Einheiten auf dem Bildschirm ohne massenhafte „Überläufer“ oder verschwindende Verbündete
+
+Benötigt: Abyssal-Terrors-DLC + Darkly77-ContentLoader
+Optional: dami-ModOptions (Einstellungen im Spiel)
+
+==================================================
+Français（法语）
+==================================================
+标题： Super Charme/SuperCharm
+
+Le charme vanilla sans laisse : charme permanent, une vraie armée de charmés, domptage de boss et deux nouveaux objets. La taille de l'armée est configurable (100 par défaut, illimité en option), avec des performances optimisées pour les batailles gigantesques.
+
+▌Fonctionnalités
+
+- Le charme n'expire plus après 8 s ; les ennemis charmés regagnent tous leurs PV
+- Les ennemis charmés sont ciblés et attaqués par les autres ennemis (1,5 s de grâce après le charme) ; vos armes ne les blessent jamais
+- Ils héritent de votre recul et régénèrent chaque seconde des PV égaux à votre Régénération de PV
+- Boss/élites : 10 % de chance de réanimer charmés à la mort (25 % de PV, stats figées à la vague du décès) ; tant qu'ils vivent, ils vous suivent à la vague suivante et soignent 20 % par vague
+- Votre armée attire des boss supplémentaires : plus elle est forte, plus ils arrivent (à partir de la vague 10 ; maximum simultané de 1/2/3 aux vagues 10/15/20, boss vanilla de la vague inclus ; augmente en mode infini)
+- Nouvel objet « Pièce de charme » (rang 3, max 5) : les coups sur les ennemis sous 30 % de PV ont 1 % de chance de charmer ; maudite : 2 % plus 1 % supplémentaire sous 60 % de PV. Avec le Romantique, la réanimation des boss passe de 10 % à 15 %
+- Nouvel objet « Pièce de réanimation » (rang 1) : +3 Régénération de PV. Lie un ennemi charmé vivant (préfère les espèces robustes) ; il combat chaque vague charmé avec ses PV complets et des stats adaptées à la vague, et revient même s'il meurt. Maudite en lie deux
+- Limite d'armée configurable (100 par défaut) : le surplus est éliminé en commençant par les plus faibles (les liés par pièce sont exemptés). Réglable de 0 à 500 ou illimité en jeu avec ModOptions, ou via le fichier de configuration
+- Performances optimisées : ciblage et collisions allégés ; des centaines d'alliés à l'écran sans « trahisons » massives ni disparitions mystérieuses
+
+Requis : DLC Abyssal Terrors + Darkly77-ContentLoader
+Optionnel : dami-ModOptions (réglages dans le jeu)
+
+==================================================
+日本語（日语）
+==================================================
+标题： スーパー魅惑/SuperCharm
+
+バニラの魅了を解放：永続魅了、本物の魅了大軍、ボス懐柔、新アイテム2種。大軍の規模は設定で変更可能（デフォルト100、無制限も選択可）、大戦闘向けに性能最適化済み。
+
+▌特徴
+
+- 魅了は8秒で切れなくなり、魅了した敵は即座にHP全回復
+- 魅了した敵は他の敵に狙われ攻撃される（魅了後1.5秒の猶予あり）。自分の武器は当たらない
+- 魅了した敵はノックバックを継承し、自分の「HP再生」と同じ量を毎秒回復
+- ボス/エリートは死亡時10%で魅了状態で復活（HP25%、死亡WAVEの数値に固定）。生きていれば次のWAVEに同行し、WAVEごとに20%回復
+- 魅了大軍が追加ボスを引き寄せる：大軍の戦力が強いほど来襲ボスが増える（第10WAVEから、同時出現はWAVE10/15/20で1/2/3体まで・バニラWAVEボス込み、エンドレスで緩和）
+- 新アイテム「魅惑コイン」（ティア3、最大5個）：HP30%未満の敵への命中時1%で魅了。呪い版は2%、さらにHP60%未満で+1%。ロマンチスト所持時はボス復活率が10%→15%
+- 新アイテム「復活コイン」（ティア1）：HP再生+3。生存中の魅了敵1種をランダムにバインド（高HP優先）。以降毎WAVE、WAVEスケールの数値・HP全開で魅了参戦。死亡しても次のWAVEで復帰。呪い版は2体バインド
+- 大軍上限は変更可能：デフォルト100、超過分は弱い順に自動除去（復活コインのバインド分は免除）。ModOptions導入でゲーム内から0〜500または無制限に設定可能、未導入なら設定ファイルで変更
+- 大戦闘向け性能最適化：索敵と当たり判定を軽量化。数百体同時でも集団「寝返り」や謎の消失は発生しない
+
+必要： DLC「Abyssal Terrors」+ Darkly77-ContentLoader
+任意： dami-ModOptions（ゲーム内設定UI）
+
+==================================================
+한국어（韩语）
+==================================================
+标题： 슈퍼 매혹/SuperCharm
+
+바닐라 매혹의 해방: 영구 매혹, 진짜 매혹 군단, 보스 길들이기, 신규 아이템 2종. 군단 규모는 설정에서 조정 가능(기본 100, 무제한 선택 가능), 대규모 전투에 맞춰 성능 최적화 완료.
+
+▌기능
+
+- 매혹이 8초 후 끝나지 않으며, 매혹된 적은 즉시 체력을 전부 회복
+- 매혹된 적은 다른 적들의 표적이 되어 공격받음(매혹 후 1.5초 유예). 내 무기에는 절대 맞지 않음
+- 매혹된 적은 넉백을 계승하고, 내 「HP 재생」과 같은 양을 매초 회복
+- 보스/엘리트는 사망 시 10% 확률로 매혹 상태로 부활(HP 25%, 사망 웨이브의 수치로 고정). 살아있으면 다음 웨이브에 동행하고 웨이브당 20% 회복
+- 매혹 군단이 추가 보스를 끌어들임: 군단 전력이 강할수록 보스가 더 나타남(10웨이브부터, 동시 출현 상한은 10/15/20웨이브에서 1/2/3마리·바닐라 웨이브 보스 포함, 엔드리스에서 완화)
+- 신규 아이템 「매혹 코인」(티어 3, 최대 5개): HP 30% 미만의 적 명중 시 1% 확률로 매혹. 저주 버전은 2%이며 HP 60% 미만에서 추가 1%. 로맨티스트가 보유하면 보스 부활률 10%→15%
+- 신규 아이템 「부활 코인」(티어 1): HP 재생 +3. 살아있는 매혹된 적 한 종류를 무작위로 바인드(고HP 우선). 이후 매 웨이브 웨이브 스케일 수치와 체력 최대로 매혹 참전, 죽어도 다음 웨이브에 복귀. 저주 버전은 2마리 바인드
+- 군단 상한 조정 가능: 기본 100, 초과분은 약한 순으로 자동 정리(부활 코인 바인드는 면제). ModOptions 설치 시 게임 안에서 0~500 또는 무제한 설정 가능, 미설치 시 설정 파일로 변경
+- 대규모 전투 성능 최적화: 탐색과 충돌 경량화. 수백 마리가 동시에 있어도 집단 「배신」이나 갑작스런 증발 없음
+
+필요: Abyssal Terrors DLC + Darkly77-ContentLoader
+선택: dami-ModOptions(게임 내 설정 UI)
