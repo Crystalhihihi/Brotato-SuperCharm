@@ -39,7 +39,7 @@ GodotWorkshopUtility 内容选 publish/ 里的 zip + preview.png，**ID 栏填 3
 存盘）→ 本地覆盖时用**同名文件**覆盖，别用别的名字塞进去，否则 Steam 校验后会把自己
 那份再下回来，变成两个 zip。
 
-## mod 当前功能（v46 / manifest 1.0.46，已打包并覆盖本地工坊文件夹 3796762706（文件名"超级魅惑 SuperCharm.zip"，md5 26ec387c70de3597be55edf650fa8f63）；探针验证 10 语言 DLC 警告翻译干净、启动 0 脚本错误。**尚未推 Steam**，推送用 GodotWorkshopUtility + ID 3796762706 + publish/超级魅惑 SuperCharm.zip）
+## mod 当前功能（v47 / manifest 1.0.47，已打包并覆盖本地工坊文件夹 3796762706（文件名"超级魅惑 SuperCharm.zip"，md5 da4f8eb34d754c0331050516fa69e66a）；真实启动验证：无 DLC 时警告如期触发、0 脚本错误。**尚未推 Steam**，推送用 GodotWorkshopUtility + ID 3796762706 + publish/超级魅惑 SuperCharm.zip）
 
 **v45 改名**：mod ID `LocalMods-RomanceCharm` → `Crystalhihihi-SuperCharm`（manifest name/namespace、
 zip 内文件夹、mod_main.gd 的 RC_LOG/MOD_DIR/ContentLoader 注册名、3 处 tres ext_resource
@@ -47,13 +47,16 @@ zip 内文件夹、mod_main.gd 的 RC_LOG/MOD_DIR/ContentLoader 注册名、3 �
 重置默认（玩家同意不迁移）**。物品 my_id 不变，存档/解锁不受影响；Steam 标题与物品
 翻译 msgid 均不动。游戏内 mod 列表现在显示 `Crystalhihihi-SuperCharm`。
 
--4.8. **无 DLC 弹窗警告（v46）**：魅惑机制整个是 DLC 内容（charm_enemy_effect_behavior
+-4.8. **无 DLC 弹窗警告（v46/v47）**：魅惑机制整个是 DLC 内容（charm_enemy_effect_behavior
    在 dlcs/dlc_1、浪漫之人是 DLC 角色），没买/没启用 DLC 时 mod 全程 null 兜底静默
    无效（巴西玩家留言 "pq n esta funcionando?" 的来源）。`_process` 里等
-   `_translations_ready`（0.5s 延迟注册完成后）且 current_scene 是 MainMenu 时，
+   `_translations_ready`（0.5s 延迟注册完成后）且 current_scene 是标题界面时，
    查 `ProgressData.available_dlcs.size() == 0`（游戏自己的 DLC 判定，
    check_for_available_dlcs 里 Steam 非机主直接 return）→ AcceptDialog 弹一次。
-   **弹窗 add_child 到 MainMenu 继承游戏主题**（Godot 默认主题没 CJK 字体，裸弹窗
+   **踩坑（v46 不弹，v47 修）：这游戏没有独立的 main menu 场景**——标题界面
+   title_screen.tscn 内嵌 %MainMenu，current_scene 永远不会叫 "MainMenu"；
+   现在用标题界面的 `_menus` 成员鸭式判定（`scene.get("_menus") != null`）。
+   **弹窗 add_child 到标题场景继承游戏主题**（Godot 默认主题没 CJK 字体，裸弹窗
    中文变方块）。msgid 直接用英文原文：覆盖不了的 locale 自然回退英文（探针验证
    pl 回退正常），10 语言翻译照旧在 `_add_translations`。每启动至多弹一次。
 

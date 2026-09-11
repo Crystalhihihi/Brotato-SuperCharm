@@ -564,11 +564,14 @@ func _process(delta: float) -> void:
 		_on_wave_end()
 	_was_in_progress = RunData.wave_in_progress
 
-	# DLC warning popup waits for the main menu (translations must be in first —
-	# they land 0.5s after _ready, see _add_translations)
+	# DLC warning popup waits for the title screen (translations must be in first —
+	# they land 0.5s after _ready, see _add_translations). The title scene IS the
+	# main menu here — it embeds %MainMenu and current_scene is never NAMED
+	# "MainMenu" (v46 first attempt name-checked for it and never fired), so
+	# duck-type on the title screen's _menus member instead
 	if _translations_ready and not _dlc_warned:
 		var scene = get_tree().current_scene
-		if scene != null and scene.name == "MainMenu":
+		if scene != null and scene.get("_menus") != null:
 			_dlc_warned = true
 			_warn_if_dlc_missing(scene)
 
