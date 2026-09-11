@@ -38,6 +38,8 @@ var _last_main = null
 var _spawned_for_main = null
 var _last_wave := -1
 var _was_in_progress := false
+var _translations_ready := false
+var _dlc_warned := false
 var _scan_accum := 0.0
 var _regen_accum := 0.0
 var _police_accum := 0.0
@@ -250,6 +252,8 @@ func _add_translations() -> void:
 		# and zh_TW would win — Simplified players saw Traditional labels
 		zh.add_message("魅惑大军上限", "魅惑大军上限")
 		zh.add_message("无上限模式", "无上限模式")
+		zh.add_message("SuperCharm: Abyssal Terrors DLC required", "SuperCharm：需要《深海魔怪》DLC")
+		zh.add_message("This mod requires the Abyssal Terrors DLC.\nWithout it, the charm mechanic does not exist in the game and this mod does nothing.\nPlease install or enable the DLC, then restart the game.", "本 mod 需要《深海魔怪》（Abyssal Terrors）DLC。\n没有它，游戏里不存在魅惑机制，本 mod 不会生效。\n请安装或启用 DLC 后重启游戏。")
 		TranslationServer.add_translation(zh)
 	var en = Translation.new()
 	en.locale = "en"
@@ -279,6 +283,8 @@ func _add_translations() -> void:
 		tw.add_message("RC_CONFIG_UNLIMITED_TOOLTIP", "移除魅惑大軍數量上限。警告：實體過多會壓垮物理引擎導致閃退，後果自負")
 		tw.add_message("魅惑大军上限", "魅惑大軍上限")
 		tw.add_message("无上限模式", "無上限模式")
+		tw.add_message("SuperCharm: Abyssal Terrors DLC required", "SuperCharm：需要《深海魔怪》DLC")
+		tw.add_message("This mod requires the Abyssal Terrors DLC.\nWithout it, the charm mechanic does not exist in the game and this mod does nothing.\nPlease install or enable the DLC, then restart the game.", "本 mod 需要《深海魔怪》（Abyssal Terrors）DLC。\n沒有它，遊戲裡不存在魅惑機制，本 mod 不會生效。\n請安裝或啟用 DLC 後重新啟動遊戲。")
 		TranslationServer.add_translation(tw)
 	var ru = Translation.new()
 	ru.locale = "ru"
@@ -290,6 +296,8 @@ func _add_translations() -> void:
 	ru.add_message("RC_CONFIG_UNLIMITED_TOOLTIP", "Снимает лимит армии очарованных. ВНИМАНИЕ: слишком много сущностей может обрушить физический движок и крашнуть игру. На свой страх и риск")
 	ru.add_message("魅惑大军上限", "Лимит армии очарованных")
 	ru.add_message("无上限模式", "Без лимита")
+	ru.add_message("SuperCharm: Abyssal Terrors DLC required", "SuperCharm: требуется DLC Abyssal Terrors")
+	ru.add_message("This mod requires the Abyssal Terrors DLC.\nWithout it, the charm mechanic does not exist in the game and this mod does nothing.\nPlease install or enable the DLC, then restart the game.", "Этому моду требуется DLC «Abyssal Terrors».\nБез него механика очарования не существует, и мод ничего не делает.\nУстановите или включите DLC и перезапустите игру.")
 	TranslationServer.add_translation(ru)
 	var es = Translation.new()
 	es.locale = "es"
@@ -301,6 +309,8 @@ func _add_translations() -> void:
 	es.add_message("RC_CONFIG_UNLIMITED_TOOLTIP", "Elimina el límite del ejército. AVISO: demasiadas entidades pueden romper el motor físico y cerrar el juego. Bajo tu responsabilidad")
 	es.add_message("魅惑大军上限", "Límite del ejército encantado")
 	es.add_message("无上限模式", "Modo sin límite")
+	es.add_message("SuperCharm: Abyssal Terrors DLC required", "SuperCharm: se requiere el DLC Abyssal Terrors")
+	es.add_message("This mod requires the Abyssal Terrors DLC.\nWithout it, the charm mechanic does not exist in the game and this mod does nothing.\nPlease install or enable the DLC, then restart the game.", "Este mod necesita el DLC «Abyssal Terrors».\nSin él, la mecánica de encantamiento no existe y el mod no hace nada.\nInstala o activa el DLC y reinicia el juego.")
 	TranslationServer.add_translation(es)
 	for locale in ["pt_BR", "pt"]:
 		var pt = Translation.new()
@@ -313,6 +323,8 @@ func _add_translations() -> void:
 		pt.add_message("RC_CONFIG_UNLIMITED_TOOLTIP", "Remove o limite do exército. AVISO: entidades demais podem quebrar o motor de física e fechar o jogo. Por sua conta e risco")
 		pt.add_message("魅惑大军上限", "Limite do exército encantado")
 		pt.add_message("无上限模式", "Modo sem limite")
+		pt.add_message("SuperCharm: Abyssal Terrors DLC required", "SuperCharm: DLC Abyssal Terrors necessária")
+		pt.add_message("This mod requires the Abyssal Terrors DLC.\nWithout it, the charm mechanic does not exist in the game and this mod does nothing.\nPlease install or enable the DLC, then restart the game.", "Este mod precisa da DLC «Abyssal Terrors».\nSem ela, a mecânica de encantamento não existe e o mod não faz nada.\nInstale ou ative a DLC e reinicie o jogo.")
 		TranslationServer.add_translation(pt)
 	var de = Translation.new()
 	de.locale = "de"
@@ -324,6 +336,8 @@ func _add_translations() -> void:
 	de.add_message("RC_CONFIG_UNLIMITED_TOOLTIP", "Entfernt das Armeelimit komplett. WARNUNG: Zu viele Entitäten können die Physik-Engine zum Absturz bringen. Auf eigene Gefahr")
 	de.add_message("魅惑大军上限", "Limit der verzauberten Armee")
 	de.add_message("无上限模式", "Unbegrenzt-Modus")
+	de.add_message("SuperCharm: Abyssal Terrors DLC required", "SuperCharm: DLC „Abyssal Terrors“ erforderlich")
+	de.add_message("This mod requires the Abyssal Terrors DLC.\nWithout it, the charm mechanic does not exist in the game and this mod does nothing.\nPlease install or enable the DLC, then restart the game.", "Dieser Mod benötigt das DLC „Abyssal Terrors“.\nOhne es existiert die Verzauberungsmechanik nicht und der Mod tut nichts.\nInstalliere oder aktiviere das DLC und starte das Spiel neu.")
 	TranslationServer.add_translation(de)
 	var fr = Translation.new()
 	fr.locale = "fr"
@@ -335,6 +349,8 @@ func _add_translations() -> void:
 	fr.add_message("RC_CONFIG_UNLIMITED_TOOLTIP", "Supprime la limite de l'armée. ATTENTION : trop d'entités peuvent faire crasher le moteur physique. À vos risques et périls")
 	fr.add_message("魅惑大军上限", "Limite de l'armée charmée")
 	fr.add_message("无上限模式", "Mode illimité")
+	fr.add_message("SuperCharm: Abyssal Terrors DLC required", "SuperCharm : DLC « Abyssal Terrors » requis")
+	fr.add_message("This mod requires the Abyssal Terrors DLC.\nWithout it, the charm mechanic does not exist in the game and this mod does nothing.\nPlease install or enable the DLC, then restart the game.", "Ce mod nécessite le DLC « Abyssal Terrors ».\nSans lui, la mécanique de charme n'existe pas et le mod ne fait rien.\nInstallez ou activez le DLC, puis redémarrez le jeu.")
 	TranslationServer.add_translation(fr)
 	var ja = Translation.new()
 	ja.locale = "ja"
@@ -346,6 +362,8 @@ func _add_translations() -> void:
 	ja.add_message("RC_CONFIG_UNLIMITED_TOOLTIP", "魅了大軍の上限を解除する。警告：エンティティが多すぎると物理エンジンが破綻しクラッシュする可能性あり。自己責任で")
 	ja.add_message("魅惑大军上限", "魅了大軍の上限")
 	ja.add_message("无上限模式", "無制限モード")
+	ja.add_message("SuperCharm: Abyssal Terrors DLC required", "SuperCharm：DLC「Abyssal Terrors」が必要です")
+	ja.add_message("This mod requires the Abyssal Terrors DLC.\nWithout it, the charm mechanic does not exist in the game and this mod does nothing.\nPlease install or enable the DLC, then restart the game.", "この MOD には DLC「Abyssal Terrors」が必要です。\nDLC がないと魅了システム自体が存在しないため、MOD は一切動作しません。\nDLC をインストールまたは有効化してからゲームを再起動してください。")
 	TranslationServer.add_translation(ja)
 	var ko = Translation.new()
 	ko.locale = "ko"
@@ -357,7 +375,31 @@ func _add_translations() -> void:
 	ko.add_message("RC_CONFIG_UNLIMITED_TOOLTIP", "매혹 군단 상한을 해제함. 경고: 엔티티가 너무 많으면 물리 엔진이 버티지 못하고 게임이 종료될 수 있음. 본인 책임 하에 사용")
 	ko.add_message("魅惑大军上限", "매혹 군단 상한")
 	ko.add_message("无上限模式", "무제한 모드")
+	ko.add_message("SuperCharm: Abyssal Terrors DLC required", "SuperCharm: 「Abyssal Terrors」 DLC 필요")
+	ko.add_message("This mod requires the Abyssal Terrors DLC.\nWithout it, the charm mechanic does not exist in the game and this mod does nothing.\nPlease install or enable the DLC, then restart the game.", "이 모드는 「Abyssal Terrors」 DLC가 필요합니다.\nDLC가 없으면 매혹 시스템 자체가 존재하지 않아 모드가 아무것도 하지 않습니다.\nDLC를 설치하거나 활성화한 후 게임을 다시 시작하세요.")
 	TranslationServer.add_translation(ko)
+	_translations_ready = true
+
+
+# The whole charm mechanic is DLC content (charm_enemy_effect_behavior lives in
+# dlcs/dlc_1, the Romantic is a DLC character): without Abyssal Terrors the mod
+# silently does nothing — null-guarded everywhere, no errors, just dead items
+# (that was the "pq n esta funcionando" workshop comment). Warn once per launch
+# on the main menu, localized through TranslationServer. Msgids ARE the English
+# text, so locales we don't cover still get English instead of a raw key.
+func _warn_if_dlc_missing(menu: Node) -> void:
+	if ProgressData.available_dlcs.size() > 0:
+		return
+	ModLoaderLog.error("Abyssal Terrors DLC missing/disabled; charm mechanics unavailable", RC_LOG)
+	var dialog = AcceptDialog.new()
+	dialog.window_title = tr("SuperCharm: Abyssal Terrors DLC required")
+	dialog.dialog_text = tr("This mod requires the Abyssal Terrors DLC.\nWithout it, the charm mechanic does not exist in the game and this mod does nothing.\nPlease install or enable the DLC, then restart the game.")
+	dialog.get_label().valign = Label.VALIGN_CENTER
+	# adding to the menu inherits the game theme (the default Godot theme has no
+	# CJK font — a bare dialog would render Chinese/Japanese/Korean as boxes)
+	menu.add_child(dialog)
+	dialog.connect("popup_hide", dialog, "queue_free")
+	dialog.popup_centered()
 
 
 # ---------------- perma charm + ally targeting ----------------
@@ -521,6 +563,14 @@ func _process(delta: float) -> void:
 	if _was_in_progress and not RunData.wave_in_progress:
 		_on_wave_end()
 	_was_in_progress = RunData.wave_in_progress
+
+	# DLC warning popup waits for the main menu (translations must be in first —
+	# they land 0.5s after _ready, see _add_translations)
+	if _translations_ready and not _dlc_warned:
+		var scene = get_tree().current_scene
+		if scene != null and scene.name == "MainMenu":
+			_dlc_warned = true
+			_warn_if_dlc_missing(scene)
 
 	var main = Utils.get_scene_node()
 	if main == null or not ("_entity_spawner" in main):
