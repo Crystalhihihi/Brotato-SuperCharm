@@ -28,6 +28,11 @@ Vanilla charm, unchained: permanent charm, a real charmed army, boss taming, and
 - Configurable swarm cap (default 100): overflow is culled weakest-first (coin-bound allies are exempt). Adjust 0-500 or go unlimited in-game with ModOptions, or via the config file
 - Performance-tuned swarm: optimized targeting and collision, no more mass "defection" or silently vanishing allies in huge fights
 
+▌反馈 / Feedback
+
+觉得这个 mod 太强/需要削弱，或者遇到了 bug？欢迎在评论区留言，我都会看。
+Think this mod is overtuned or needs a nerf? Ran into a bug? Leave a comment below — I read every one.
+
 依赖 / Requires: 深海魔怪 DLC / Abyssal Terrors DLC + Darkly77-ContentLoader
 可选 / Optional: dami-ModOptions（游戏内设置界面 / in-game settings UI）
 

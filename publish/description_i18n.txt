@@ -6,7 +6,7 @@
 English（英语）
 ==================================================
 标题： SuperCharm
-（描述用 description.txt 的英文部分，第 7、21-29、31-32 行）
+（描述用 description.txt 的英文部分：英文简介、Features 列表、Feedback 区的英文句、Requires/Optional 两行）
 
 ==================================================
 繁體中文
@@ -30,6 +30,8 @@ English（英语）
 需要：深海魔怪 DLC（Abyssal Terrors）+ Darkly77-ContentLoader
 可選：dami-ModOptions（遊戲內設定介面）
 
+覺得這個 mod 太強/需要削弱，或者遇到 bug？歡迎在留言區留言，我都會看。
+
 ==================================================
 Русский（俄语）
 ==================================================
@@ -51,6 +53,8 @@ English（英语）
 
 Требуется: DLC «Abyssal Terrors» + Darkly77-ContentLoader
 Опционально: dami-ModOptions (настройки внутри игры)
+
+Кажется, что мод слишком сильный и его стоит ослабить? Нашли баг? Оставьте комментарий ниже — я читаю все.
 
 ==================================================
 Español（西班牙语）
@@ -74,6 +78,8 @@ El encantamiento vanilla desatado: encantamiento permanente, un ejército de enc
 Requiere: DLC Abyssal Terrors + Darkly77-ContentLoader
 Opcional: dami-ModOptions (ajustes dentro del juego)
 
+¿Te parece que el mod está demasiado fuerte o necesita un nerfeo? ¿Encontraste un bug? Deja un comentario abajo — los leo todos.
+
 ==================================================
 Português (Brasil)（葡萄牙语-巴西）
 ==================================================
@@ -95,6 +101,8 @@ O encantamento clássico sem correntes: encantamento permanente, um exército de
 
 Requer: DLC Abyssal Terrors + Darkly77-ContentLoader
 Opcional: dami-ModOptions (configurações dentro do jogo)
+
+Achou o mod forte demais ou que precisa de nerf? Encontrou um bug? Deixe um comentário abaixo — eu leio todos.
 
 ==================================================
 Deutsch（德语）
@@ -118,6 +126,8 @@ Der Vanilla-Zauber ohne Leine: permanente Verzauberung, eine echte Armee Verzaub
 Benötigt: Abyssal-Terrors-DLC + Darkly77-ContentLoader
 Optional: dami-ModOptions (Einstellungen im Spiel)
 
+Findest du den Mod zu stark bzw. dass er einen Nerf braucht? Hast du einen Bug gefunden? Hinterlasse unten einen Kommentar — ich lese alle.
+
 ==================================================
 Français（法语）
 ==================================================
@@ -139,6 +149,8 @@ Le charme vanilla sans laisse : charme permanent, une vraie armée de charmés, 
 
 Requis : DLC Abyssal Terrors + Darkly77-ContentLoader
 Optionnel : dami-ModOptions (réglages dans le jeu)
+
+Vous trouvez le mod trop puissant ou qu'il mérite un nerf ? Vous avez trouvé un bug ? Laissez un commentaire ci-dessous — je les lis tous.
 
 ==================================================
 日本語（日语）
@@ -162,6 +174,8 @@ Optionnel : dami-ModOptions (réglages dans le jeu)
 必要： DLC「Abyssal Terrors」+ Darkly77-ContentLoader
 任意： dami-ModOptions（ゲーム内設定UI）
 
+強すぎる/ナーフすべきと思ったり、バグを見つけたりしたら、下のコメント欄で教えてください。すべて目を通しています。
+
 ==================================================
 한국어（韩语）
 ==================================================
@@ -183,3 +197,5 @@ Optionnel : dami-ModOptions (réglages dans le jeu)
 
 필요: Abyssal Terrors DLC + Darkly77-ContentLoader
 선택: dami-ModOptions(게임 내 설정 UI)
+
+이 모드가 너무 강하거나 너프가 필요하다고 느끼셨나요? 버그를 발견하셨나요? 아래 댓글로 남겨주세요 — 모두 읽습니다.
