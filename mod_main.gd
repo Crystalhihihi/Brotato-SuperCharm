@@ -64,6 +64,9 @@ var _bindable_species := {}
 # base max_enemies of the wave before we refund the swarm's share
 var _max_enemies_base := -1
 var _max_enemies_base_for := 0
+# lazily loaded hue-shift material used to retint converted additional
+# projectiles (same shader vanilla applies to a charmed shooter's bullets)
+var _charm_projectile_shader = null
 # reference point for the farthest-first swarm cull sort
 var _cull_player_pos := Vector2.ZERO
 # The swarm cap doubles as the max_enemies refund cap: without it an endless
@@ -244,7 +247,7 @@ func _add_translations() -> void:
 		zh.add_message("ITEM_REVIVAL_COIN", "复活币")
 		zh.add_message("EFFECT_REVIVAL_COIN", "战斗中从仍存活的被魅惑小怪中随机绑定" + pos + "一只" + e + "；之后每波它以魅惑状态" + pos + "满血" + e + "参战（数值随波次增长），战死后下一波重新归来。被" + cur + "诅咒" + e + "时绑定" + cur + "两只" + e)
 		zh.add_message("ITEM_CHARM_COIN", "魅惑币")
-		zh.add_message("EFFECT_CHARM_COIN", "攻击命中生命值低于 " + pos + "30%" + e + " 的敌人时，有 " + pos + "1%" + e + " 概率将其魅惑（最多持有 " + pos + "5" + e + " 个）。被" + cur + "诅咒" + e + "时：概率提升至 " + cur + "2%" + e + "，且生命值低于 " + cur + "60%" + e + " 的敌人追加 " + cur + "1%" + e + " 概率")
+		zh.add_message("EFFECT_CHARM_COIN", "攻击命中生命值低于 " + pos + "30%" + e + " 的敌人时，有 " + pos + "1%" + e + " 概率将其魅惑（最多持有 " + pos + "5" + e + " 个）。被" + cur + "诅咒" + e + "时：概率提升至 " + cur + "2%" + e + "，且生命值低于 " + cur + "60%" + e + " 的敌人追加 " + cur + "1%" + e + " 概率。无尽模式概率衰减时，每 " + pos + "100" + e + " 点最大生命抵消 1 倍衰减（至多恢复标称概率）")
 		zh.add_message("RC_CONFIG_CAP_TOOLTIP", "同屏魅惑小怪的最大数量（默认 100）。超过上限时最大生命最低的会被静默裁掉。调太高会导致无尽后期卡顿甚至闪退")
 		zh.add_message("RC_CONFIG_UNLIMITED_TOOLTIP", "移除魅惑大军数量上限。警告：实体过多会压垮物理引擎导致闪退，后果自负")
 		# identity mappings are REQUIRED: when the best-matching (zh) translation
@@ -260,7 +263,7 @@ func _add_translations() -> void:
 	en.add_message("ITEM_REVIVAL_COIN", "Revival Coin")
 	en.add_message("EFFECT_REVIVAL_COIN", "Binds " + pos + "one" + e + " random charmed enemy still alive on the field. It joins every wave charmed at " + pos + "full HP" + e + " (stats scale with waves); if it dies, it returns next wave. Binds " + cur + "two" + e + " when " + cur + "cursed" + e)
 	en.add_message("ITEM_CHARM_COIN", "Charm Coin")
-	en.add_message("EFFECT_CHARM_COIN", "Hits on enemies below " + pos + "30%" + e + " HP have a " + pos + "1%" + e + " chance to charm them (max " + pos + "5" + e + "). When " + cur + "cursed" + e + ": " + cur + "2%" + e + " chance, plus an extra " + cur + "1%" + e + " window on enemies below " + cur + "60%" + e + " HP")
+	en.add_message("EFFECT_CHARM_COIN", "Hits on enemies below " + pos + "30%" + e + " HP have a " + pos + "1%" + e + " chance to charm them (max " + pos + "5" + e + "). When " + cur + "cursed" + e + ": " + cur + "2%" + e + " chance, plus an extra " + cur + "1%" + e + " window on enemies below " + cur + "60%" + e + " HP. In endless, every " + pos + "100" + e + " max HP cancels 1x of the charm chance decay (never above the printed chance)")
 	en.add_message("RC_CONFIG_CAP_TOOLTIP", "Max charmed small enemies alive at once (default 100). Overflow is silently culled, lowest max-HP first. Too high may lag or crash in endless")
 	en.add_message("RC_CONFIG_UNLIMITED_TOOLTIP", "Removes the swarm cap entirely. WARNING: too many entities can crash the physics engine. Use at your own risk")
 	# the config keys ARE Chinese labels in the ModOptions menu (rendered as
@@ -278,7 +281,7 @@ func _add_translations() -> void:
 		tw.add_message("ITEM_REVIVAL_COIN", "復活幣")
 		tw.add_message("EFFECT_REVIVAL_COIN", "戰鬥中從仍存活的被魅惑小怪中隨機綁定" + pos + "一隻" + e + "；之後每波它以魅惑狀態" + pos + "滿血" + e + "參戰（數值隨波次成長），戰死後下一波重新歸來。被" + cur + "詛咒" + e + "時綁定" + cur + "兩隻" + e)
 		tw.add_message("ITEM_CHARM_COIN", "魅惑幣")
-		tw.add_message("EFFECT_CHARM_COIN", "攻擊命中生命值低於 " + pos + "30%" + e + " 的敵人時，有 " + pos + "1%" + e + " 機率將其魅惑（最多持有 " + pos + "5" + e + " 個）。被" + cur + "詛咒" + e + "時：機率提升至 " + cur + "2%" + e + "，且生命值低於 " + cur + "60%" + e + " 的敵人追加 " + cur + "1%" + e + " 機率")
+		tw.add_message("EFFECT_CHARM_COIN", "攻擊命中生命值低於 " + pos + "30%" + e + " 的敵人時，有 " + pos + "1%" + e + " 機率將其魅惑（最多持有 " + pos + "5" + e + " 個）。被" + cur + "詛咒" + e + "時：機率提升至 " + cur + "2%" + e + "，且生命值低於 " + cur + "60%" + e + " 的敵人追加 " + cur + "1%" + e + " 機率。無盡模式機率衰減時，每 " + pos + "100" + e + " 點最大生命抵消 1 倍衰減（至多恢復標稱機率）")
 		tw.add_message("RC_CONFIG_CAP_TOOLTIP", "同屏魅惑小怪的最大數量（預設 100）。超過上限時最大生命最低的會被靜默裁掉。調太高會導致無盡後期卡頓甚至閃退")
 		tw.add_message("RC_CONFIG_UNLIMITED_TOOLTIP", "移除魅惑大軍數量上限。警告：實體過多會壓垮物理引擎導致閃退，後果自負")
 		tw.add_message("魅惑大军上限", "魅惑大軍上限")
@@ -291,7 +294,7 @@ func _add_translations() -> void:
 	ru.add_message("ITEM_REVIVAL_COIN", "Монета воскрешения")
 	ru.add_message("EFFECT_REVIVAL_COIN", "В бою привязывает " + pos + "одного" + e + " случайного очарованного врага, ещё живого на поле; затем каждую волну он сражается очарованным с " + pos + "полным ОЗ" + e + " (характеристики растут с волнами), а после гибели возвращается на следующей. При " + cur + "проклятии" + e + " привязывает " + cur + "двух" + e)
 	ru.add_message("ITEM_CHARM_COIN", "Монета очарования")
-	ru.add_message("EFFECT_CHARM_COIN", "Попадания по врагам с ОЗ ниже " + pos + "30%" + e + " имеют " + pos + "1%" + e + " шанс очаровать их (макс. " + pos + "5" + e + "). При " + cur + "проклятии" + e + ": шанс " + cur + "2%" + e + ", плюс дополнительный " + cur + "1%" + e + " по врагам с ОЗ ниже " + cur + "60%" + e)
+	ru.add_message("EFFECT_CHARM_COIN", "Попадания по врагам с ОЗ ниже " + pos + "30%" + e + " имеют " + pos + "1%" + e + " шанс очаровать их (макс. " + pos + "5" + e + "). При " + cur + "проклятии" + e + ": шанс " + cur + "2%" + e + ", плюс дополнительный " + cur + "1%" + e + " по врагам с ОЗ ниже " + cur + "60%" + e + ". В бесконечном режиме каждые " + pos + "100" + e + " макс. ОЗ отменяют 1x ослабления шанса (не выше указанного)")
 	ru.add_message("RC_CONFIG_CAP_TOOLTIP", "Максимум очарованных мелких врагов на экране (по умолчанию 100). Превышение тихо удаляется, начиная с самых слабых по макс. ОЗ. Слишком высокое значение может тормозить или крашить игру в бесконечном режиме")
 	ru.add_message("RC_CONFIG_UNLIMITED_TOOLTIP", "Снимает лимит армии очарованных. ВНИМАНИЕ: слишком много сущностей может обрушить физический движок и крашнуть игру. На свой страх и риск")
 	ru.add_message("魅惑大军上限", "Лимит армии очарованных")
@@ -304,7 +307,7 @@ func _add_translations() -> void:
 	es.add_message("ITEM_REVIVAL_COIN", "Moneda de resurrección")
 	es.add_message("EFFECT_REVIVAL_COIN", "En combate vincula a " + pos + "un" + e + " enemigo encantado que siga vivo; cada oleada lucha encantado con " + pos + "PS completos" + e + " (las estadísticas escalan con las oleadas) y, si muere, vuelve en la siguiente. Al estar " + cur + "maldita" + e + " vincula a " + cur + "dos" + e)
 	es.add_message("ITEM_CHARM_COIN", "Moneda de encantamiento")
-	es.add_message("EFFECT_CHARM_COIN", "Los golpes a enemigos con menos del " + pos + "30%" + e + " de PS tienen un " + pos + "1%" + e + " de probabilidad de encantarlos (máx. " + pos + "5" + e + "). Al estar " + cur + "maldita" + e + ": " + cur + "2%" + e + " de probabilidad, más un " + cur + "1%" + e + " extra sobre enemigos con menos del " + cur + "60%" + e + " de PS")
+	es.add_message("EFFECT_CHARM_COIN", "Los golpes a enemigos con menos del " + pos + "30%" + e + " de PS tienen un " + pos + "1%" + e + " de probabilidad de encantarlos (máx. " + pos + "5" + e + "). Al estar " + cur + "maldita" + e + ": " + cur + "2%" + e + " de probabilidad, más un " + cur + "1%" + e + " extra sobre enemigos con menos del " + cur + "60%" + e + " de PS. En infinito, cada " + pos + "100" + e + " PS máx. cancelan 1x de la reducción (sin superar la probabilidad impresa)")
 	es.add_message("RC_CONFIG_CAP_TOOLTIP", "Máximo de enemigos pequeños encantados a la vez (100 por defecto). El exceso se elimina en silencio, primero los de menos PS máx. Un valor muy alto puede causar lag o cierres en infinito")
 	es.add_message("RC_CONFIG_UNLIMITED_TOOLTIP", "Elimina el límite del ejército. AVISO: demasiadas entidades pueden romper el motor físico y cerrar el juego. Bajo tu responsabilidad")
 	es.add_message("魅惑大军上限", "Límite del ejército encantado")
@@ -318,7 +321,7 @@ func _add_translations() -> void:
 		pt.add_message("ITEM_REVIVAL_COIN", "Moeda de Ressurreição")
 		pt.add_message("EFFECT_REVIVAL_COIN", "Em combate, vincula " + pos + "um" + e + " inimigo encantado ainda vivo no campo; ele luta em toda onda encantado com " + pos + "PV completos" + e + " (atributos escalam com as ondas) e, se morrer, retorna na próxima. Quando " + cur + "amaldiçoada" + e + ", vincula " + cur + "dois" + e)
 		pt.add_message("ITEM_CHARM_COIN", "Moeda de Encantamento")
-		pt.add_message("EFFECT_CHARM_COIN", "Golpes em inimigos com menos de " + pos + "30%" + e + " de PV têm " + pos + "1%" + e + " de chance de encantá-los (máx. " + pos + "5" + e + "). Quando " + cur + "amaldiçoada" + e + ": " + cur + "2%" + e + " de chance, mais " + cur + "1%" + e + " extra em inimigos com menos de " + cur + "60%" + e + " de PV")
+		pt.add_message("EFFECT_CHARM_COIN", "Golpes em inimigos com menos de " + pos + "30%" + e + " de PV têm " + pos + "1%" + e + " de chance de encantá-los (máx. " + pos + "5" + e + "). Quando " + cur + "amaldiçoada" + e + ": " + cur + "2%" + e + " de chance, mais " + cur + "1%" + e + " extra em inimigos com menos de " + cur + "60%" + e + " de PV. No infinito, cada " + pos + "100" + e + " PV máx. cancelam 1x da redução (sem exceder a chance impressa)")
 		pt.add_message("RC_CONFIG_CAP_TOOLTIP", "Máximo de inimigos pequenos encantados ao mesmo tempo (padrão 100). O excesso é removido silenciosamente, dos mais fracos em PV máx. primeiro. Valores altos demais podem causar lag ou crashes no infinito")
 		pt.add_message("RC_CONFIG_UNLIMITED_TOOLTIP", "Remove o limite do exército. AVISO: entidades demais podem quebrar o motor de física e fechar o jogo. Por sua conta e risco")
 		pt.add_message("魅惑大军上限", "Limite do exército encantado")
@@ -331,7 +334,7 @@ func _add_translations() -> void:
 	de.add_message("ITEM_REVIVAL_COIN", "Wiederbelebungsmünze")
 	de.add_message("EFFECT_REVIVAL_COIN", "Bindet im Kampf " + pos + "einen" + e + " zufälligen verzauberten Gegner, der noch lebt; er kämpft jede Welle verzaubert mit " + pos + "vollen LP" + e + " (Werte skalieren mit den Wellen) und kehrt nach dem Tod in der nächsten Welle zurück. Wenn " + cur + "verflucht" + e + ", bindet sie " + cur + "zwei" + e)
 	de.add_message("ITEM_CHARM_COIN", "Zaubermünze")
-	de.add_message("EFFECT_CHARM_COIN", "Treffer auf Gegner unter " + pos + "30 %" + e + " LP haben eine " + pos + "1 %" + e + "-Chance, sie zu verzaubern (max. " + pos + "5" + e + "). Wenn " + cur + "verflucht" + e + ": " + cur + "2 %" + e + " Chance, plus zusätzliche " + cur + "1 %" + e + " bei Gegnern unter " + cur + "60 %" + e + " LP")
+	de.add_message("EFFECT_CHARM_COIN", "Treffer auf Gegner unter " + pos + "30 %" + e + " LP haben eine " + pos + "1 %" + e + "-Chance, sie zu verzaubern (max. " + pos + "5" + e + "). Wenn " + cur + "verflucht" + e + ": " + cur + "2 %" + e + " Chance, plus zusätzliche " + cur + "1 %" + e + " bei Gegnern unter " + cur + "60 %" + e + " LP. Im Endlosmodus heben je " + pos + "100" + e + " max. LP 1x der Abschwächung auf (nie über den angegebenen Wert)")
 	de.add_message("RC_CONFIG_CAP_TOOLTIP", "Maximale Zahl gleichzeitig verzauberter kleiner Gegner (Standard 100). Überschuss wird still entfernt, niedrigste max. LP zuerst. Zu hohe Werte können im Endlosmodus laggen oder crashen")
 	de.add_message("RC_CONFIG_UNLIMITED_TOOLTIP", "Entfernt das Armeelimit komplett. WARNUNG: Zu viele Entitäten können die Physik-Engine zum Absturz bringen. Auf eigene Gefahr")
 	de.add_message("魅惑大军上限", "Limit der verzauberten Armee")
@@ -344,7 +347,7 @@ func _add_translations() -> void:
 	fr.add_message("ITEM_REVIVAL_COIN", "Pièce de réanimation")
 	fr.add_message("EFFECT_REVIVAL_COIN", "En combat, lie " + pos + "un" + e + " ennemi charmé encore vivant ; il combat chaque vague charmé avec " + pos + "ses PV complets" + e + " (stats adaptées aux vagues) et, s'il meurt, revient à la vague suivante. Quand elle est " + cur + "maudite" + e + ", elle en lie " + cur + "deux" + e)
 	fr.add_message("ITEM_CHARM_COIN", "Pièce de charme")
-	fr.add_message("EFFECT_CHARM_COIN", "Les coups sur les ennemis sous " + pos + "30 %" + e + " de PV ont " + pos + "1 %" + e + " de chance de les charmer (max " + pos + "5" + e + "). Quand elle est " + cur + "maudite" + e + " : " + cur + "2 %" + e + " de chance, plus " + cur + "1 %" + e + " supplémentaire sur les ennemis sous " + cur + "60 %" + e + " de PV")
+	fr.add_message("EFFECT_CHARM_COIN", "Les coups sur les ennemis sous " + pos + "30 %" + e + " de PV ont " + pos + "1 %" + e + " de chance de les charmer (max " + pos + "5" + e + "). Quand elle est " + cur + "maudite" + e + " : " + cur + "2 %" + e + " de chance, plus " + cur + "1 %" + e + " supplémentaire sur les ennemis sous " + cur + "60 %" + e + " de PV. En infini, chaque " + pos + "100" + e + " PV max annulent 1x de la réduction (sans dépasser la chance affichée)")
 	fr.add_message("RC_CONFIG_CAP_TOOLTIP", "Nombre max d'ennemis communs charmés simultanément (100 par défaut). Le surplus est supprimé silencieusement, PV max les plus faibles d'abord. Trop haut peut laguer ou crasher en infini")
 	fr.add_message("RC_CONFIG_UNLIMITED_TOOLTIP", "Supprime la limite de l'armée. ATTENTION : trop d'entités peuvent faire crasher le moteur physique. À vos risques et périls")
 	fr.add_message("魅惑大军上限", "Limite de l'armée charmée")
@@ -357,7 +360,7 @@ func _add_translations() -> void:
 	ja.add_message("ITEM_REVIVAL_COIN", "復活コイン")
 	ja.add_message("EFFECT_REVIVAL_COIN", "戦闘中、生存している魅了済みの敵からランダムに" + pos + "1体" + e + "をバインド。以降毎WAVE、魅了状態・" + pos + "HP全開" + e + "で参戦（数値はWAVEに応じて成長）。死亡しても次のWAVEで復帰。" + cur + "呪い" + e + "時は" + cur + "2体" + e + "バインド")
 	ja.add_message("ITEM_CHARM_COIN", "魅惑コイン")
-	ja.add_message("EFFECT_CHARM_COIN", "HP" + pos + "30%" + e + "未満の敵への攻撃命中時、" + pos + "1%" + e + "の確率で魅了する（最大" + pos + "5" + e + "個まで所持可）。" + cur + "呪い" + e + "時：確率が" + cur + "2%" + e + "に上昇し、HP" + cur + "60%" + e + "未満の敵には追加で" + cur + "1%" + e + "の確率")
+	ja.add_message("EFFECT_CHARM_COIN", "HP" + pos + "30%" + e + "未満の敵への攻撃命中時、" + pos + "1%" + e + "の確率で魅了する（最大" + pos + "5" + e + "個まで所持可）。" + cur + "呪い" + e + "時：確率が" + cur + "2%" + e + "に上昇し、HP" + cur + "60%" + e + "未満の敵には追加で" + cur + "1%" + e + "の確率。無尽モードの確率減衰時、最大HP" + pos + "100" + e + "ごとに減衰1倍分を相殺（表記確率は超えない）")
 	ja.add_message("RC_CONFIG_CAP_TOOLTIP", "同時に存在できる魅了した雑魚の最大数（デフォルト100）。超過分は最大HPが低い順に静かに除去される。高すぎるとエンドレス後半で重くなりクラッシュすることもある")
 	ja.add_message("RC_CONFIG_UNLIMITED_TOOLTIP", "魅了大軍の上限を解除する。警告：エンティティが多すぎると物理エンジンが破綻しクラッシュする可能性あり。自己責任で")
 	ja.add_message("魅惑大军上限", "魅了大軍の上限")
@@ -370,7 +373,7 @@ func _add_translations() -> void:
 	ko.add_message("ITEM_REVIVAL_COIN", "부활 코인")
 	ko.add_message("EFFECT_REVIVAL_COIN", "전투 중 살아있는 매혹된 적 중 무작위 " + pos + "1마리" + e + "를 바인드. 이후 매 웨이브 매혹 상태로 " + pos + "체력 최대" + e + "로 참전(수치는 웨이브에 따라 증가). 사망해도 다음 웨이브에 복귀. " + cur + "저주" + e + " 시 " + cur + "2마리" + e + " 바인드")
 	ko.add_message("ITEM_CHARM_COIN", "매혹 코인")
-	ko.add_message("EFFECT_CHARM_COIN", "HP " + pos + "30%" + e + " 미만의 적 명중 시 " + pos + "1%" + e + " 확률로 매혹(최대 " + pos + "5" + e + "개 보유). " + cur + "저주" + e + " 시: 확률 " + cur + "2%" + e + "로 증가, HP " + cur + "60%" + e + " 미만의 적에게 추가 " + cur + "1%" + e + " 확률")
+	ko.add_message("EFFECT_CHARM_COIN", "HP " + pos + "30%" + e + " 미만의 적 명중 시 " + pos + "1%" + e + " 확률로 매혹(최대 " + pos + "5" + e + "개 보유). " + cur + "저주" + e + " 시: 확률 " + cur + "2%" + e + "로 증가, HP " + cur + "60%" + e + " 미만의 적에게 추가 " + cur + "1%" + e + " 확률. 무한 모드 확률 감쇠 시 최대 체력 " + pos + "100" + e + "당 감쇠 1배분 상쇄(표기 확률 초과 불가)")
 	ko.add_message("RC_CONFIG_CAP_TOOLTIP", "동시에 존재하는 매혹된 잡몹의 최대 수(기본 100). 초과분은 최대 HP가 낮은 순으로 조용히 정리됨. 너무 높으면 엔드리스 후반에 렉이나 충돌이 발생할 수 있음")
 	ko.add_message("RC_CONFIG_UNLIMITED_TOOLTIP", "매혹 군단 상한을 해제함. 경고: 엔티티가 너무 많으면 물리 엔진이 버티지 못하고 게임이 종료될 수 있음. 본인 책임 하에 사용")
 	ko.add_message("魅惑大军上限", "매혹 군단 상한")
@@ -407,7 +410,50 @@ func _warn_if_dlc_missing(menu: Node) -> void:
 func _on_enemy_charmed(enemy) -> void:
 	if not is_instance_valid(enemy):
 		return
+	# Close the one-frame vulnerability window FIRST, synchronously. This signal
+	# is emitted from inside charm(), but the deferred full setup below only
+	# lands next frame — until then the hurtbox is still in its vanilla state
+	# (mask 1032 includes player projectiles/explosions, and charm()'s own
+	# disable() is itself set_deferred). One physics step of player bullet-hell
+	# in that window deletes a freshly revived 25%-HP boss (v49 evidence:
+	# "charmed boss died" 0-1s after revive, killing blows attributed to
+	# player 0; "ALLY HIT BY PLAYER-SIDE" showing ally hb layer=0 mask=1032).
+	# All charm entry points here are idle-time (deferred hurt handler, timers,
+	# _process), so direct collision writes are safe from "flushing queries"
+	_protect_ally_hurtbox(enemy)
+	# TEMPORARY diagnostic (charmed-boss instant-death hunt): attach the
+	# damage-source probe to bosses/elites — see effects/rc_boss_probe.gd
+	if enemy.get("is_elite") != null:
+		var eb = enemy.get("effect_behaviors")
+		if eb != null and eb.get_node_or_null("RCBossProbe") == null:
+			var probe_script = load("res://mods-unpacked/" + MOD_DIR + "effects/rc_boss_probe.gd")
+			if probe_script != null:
+				var probe = probe_script.new()
+				probe.name = "RCBossProbe"
+				eb.add_child(probe)
+				probe.init(enemy)
 	call_deferred("_setup_charmed_ally", enemy)
+
+
+# Hurtbox protection applied the instant something is charmed (idempotent —
+# _setup_charmed_ally re-runs it a frame later). Originals are stored in meta
+# the first time so _on_charmed_ally_died can restore them for the spawner
+# pool; also used by the _scan self-heal when the state drifts mid-wave
+func _protect_ally_hurtbox(enemy) -> void:
+	var hurtbox = enemy.get("_hurtbox")
+	if hurtbox == null:
+		return
+	if not enemy.has_meta("rc_hb_layer"):
+		enemy.set_meta("rc_hb_layer", hurtbox.collision_layer)
+		enemy.set_meta("rc_hb_mask", hurtbox.collision_mask)
+	hurtbox.collision_layer = Utils.PETS_BIT
+	hurtbox.collision_mask = Utils.ENEMIES_BIT | Utils.ENEMY_PROJECTILES_BIT
+	# charm() also disables the hurtbox but via set_deferred (lands a frame
+	# late) — force it now; the grace timer in _setup_charmed_ally re-enables
+	# it after ALLY_GRACE_PERIOD as usual
+	var col = hurtbox.get("_collision")
+	if col != null:
+		col.disabled = true
 
 
 # Deferred so it runs after charm() finishes (charm() disables the hurtbox
@@ -440,14 +486,15 @@ func _setup_charmed_ally(enemy) -> void:
 	# bonus lets it walk out during the grace window)
 	var hurtbox = enemy.get("_hurtbox")
 	if hurtbox != null:
-		# remember the original collision setup so _on_charmed_ally_died can
-		# restore it — the entity spawner pools and respawns dead enemy nodes,
-		# and a recycled node with our mask would be untargetable by the player
-		if not enemy.has_meta("rc_hb_layer"):
-			enemy.set_meta("rc_hb_layer", hurtbox.collision_layer)
-			enemy.set_meta("rc_hb_mask", hurtbox.collision_mask)
-		hurtbox.collision_layer = Utils.PETS_BIT
-		hurtbox.collision_mask = Utils.ENEMIES_BIT | Utils.ENEMY_PROJECTILES_BIT
+		# layer/mask/disable were already applied synchronously in
+		# _on_enemy_charmed (the one-frame window fix); this re-affirms them
+		_protect_ally_hurtbox(enemy)
+		# diagnostic (explosion-on-charmed-boss report): with the 4|16 mask a
+		# charmed ally is physically unreachable for player-side hitboxes (layer
+		# 8 / 1024 — verified with a physics probe in the shipping engine). If
+		# such a hit lands anyway, _diag_ally_hurtbox logs the full state
+		if not hurtbox.is_connected("area_entered", self, "_diag_ally_hurtbox"):
+			hurtbox.connect("area_entered", self, "_diag_ally_hurtbox", [enemy])
 	# Drop ally-ally body collision (charm() set the body mask to PETS_BIT +
 	# OBSTACLES_BIT): in a dense swarm the move_and_slide pair resolution
 	# between allies is pure physics tax — removing it buys real headroom for
@@ -478,6 +525,22 @@ func _setup_charmed_ally(enemy) -> void:
 			hitbox.ignored_objects.push_back(players[0])
 	if not enemy.is_connected("died", self, "_on_charmed_ally_died"):
 		var _e = enemy.connect("died", self, "_on_charmed_ally_died")
+	# Vanilla charm() only converts projectiles fired through
+	# ShootingAttackBehaviors (custom_collision_layer/custom_sprite_material).
+	# "Additional" projectiles registered via register_additional_projectile —
+	# the Predator's orbiting bullet ring — are scene children it never
+	# touches, so a charmed Predator kept a hostile ring (red bullets that
+	# still hit the player). Convert them now, and keep converting late
+	# registrations: the DLC Eel only instances its bullet ring when its
+	# phase changes to state 1, which can happen AFTER the charm setup ran.
+	# The state_changed hook re-converts one frame after each phase change
+	# (deferred — Eel registers after the signal fires), and the 0.1s police
+	# tick backstops anything else. No restore on death: bosses are never
+	# pooled (Boss.respawn() asserts false) and the Predator frees the whole
+	# Pivot in die(), so nothing leaks back into the spawner pool
+	_convert_additional_projectiles(enemy)
+	if enemy.has_signal("state_changed") and not enemy.is_connected("state_changed", self, "_on_charmed_boss_state_changed"):
+		var _e_state = enemy.connect("state_changed", self, "_on_charmed_boss_state_changed")
 	if hurtbox != null:
 		var _t = get_tree().create_timer(ALLY_GRACE_PERIOD).connect("timeout", self, "_enable_ally_hurtbox", [enemy])
 	# Pin the vanilla retarget timer forever: enemy.gd re-picks targets every
@@ -490,6 +553,56 @@ func _setup_charmed_ally(enemy) -> void:
 	# Restored to 0 in _on_charmed_ally_died: the spawner pools dead nodes and
 	# a pooled hostile with a pinned timer would never retarget again
 	enemy.update_target_timer = -99999.0
+
+
+# Flip a charmed ally's registered additional projectiles (orbiting bullet
+# rings: Predator, DLC Jellyfish/Giant/Eel) to the pet-projectile layer with
+# the same charm hue shift vanilla applies to shooter bullets, so the ring
+# turns on the enemies instead of staying red and hittable by the player.
+# Idempotent: the hitbox-layer check skips projectiles already converted,
+# which is what makes it safe to re-run from the state_changed hook and the
+# police tick without churning ShaderMaterial duplicates every pass
+func _convert_additional_projectiles(enemy) -> void:
+	if not is_instance_valid(enemy):
+		return
+	var additional_projectiles = enemy.get("_all_additional_projectiles")
+	if additional_projectiles == null or additional_projectiles.empty():
+		return
+	for proj in additional_projectiles:
+		if proj == null or not is_instance_valid(proj):
+			continue
+		var proj_hitbox = proj.get("_hitbox")
+		if proj_hitbox != null and proj_hitbox.collision_layer == Utils.PET_PROJECTILES_BIT:
+			continue
+		if proj.has_method("set_collision_layer"):
+			proj.set_collision_layer(Utils.PET_PROJECTILES_BIT)
+		if proj.has_method("set_sprite_material"):
+			if _charm_projectile_shader == null:
+				_charm_projectile_shader = load("res://resources/shaders/hue_shift_shadermat.tres")
+			if _charm_projectile_shader != null:
+				var hue_mat = _charm_projectile_shader.duplicate()
+				hue_mat.set_shader_param("hue", Utils.CHARM_COLOR.h)
+				proj.set_sprite_material(hue_mat)
+
+
+# Bosses can register new additional projectiles long after charm setup ran —
+# the DLC Eel instances its bullet ring only when entering state 1. The signal
+# fires from Boss.on_state_changed BEFORE the subclass registers (Eel calls
+# .on_state_changed() first), so convert deferred, one frame after the phase
+# change settled. Guards: boss may have died in between
+func _on_charmed_boss_state_changed(boss) -> void:
+	if not is_instance_valid(boss) or boss.dead:
+		return
+	call_deferred("_convert_additional_projectiles_deferred", boss)
+
+
+func _convert_additional_projectiles_deferred(boss) -> void:
+	if not is_instance_valid(boss) or boss.dead:
+		return
+	var cb = _get_charm_behavior(boss)
+	if cb == null or not cb.charmed:
+		return
+	_convert_additional_projectiles(boss)
 
 
 # Contact damage only triggers when a hitbox ENTERS a hurtbox, so an ally and
@@ -521,10 +634,45 @@ func _enable_ally_hurtbox(enemy) -> void:
 		hurtbox.enable()
 
 
+# Diagnostic handler (explosion-on-charmed-boss report): fires when ANY area
+# enters a charmed ally's hurtbox; logs only player-side layers (8 = player
+# projectiles/explosions, 1024 = pet projectiles), which the ally's 4|16 mask
+# should make impossible — a logged line here means the protection broke
+func _diag_ally_hurtbox(area, enemy) -> void:
+	if area == null or not is_instance_valid(area):
+		return
+	if area.collision_layer & (Utils.PLAYER_PROJECTILES_BIT | Utils.PET_PROJECTILES_BIT) == 0:
+		return
+	if not is_instance_valid(enemy):
+		return
+	var cb = _get_charm_behavior(enemy)
+	if cb == null or not cb.charmed:
+		return
+	var from = area.get("from")
+	var from_desc := "null"
+	if from != null and is_instance_valid(from):
+		from_desc = "%s pi=%s" % [from.get_class(), from.get("player_index")]
+	var hb = enemy.get("_hurtbox")
+	var hb_layer = -1
+	var hb_mask = -1
+	if hb != null:
+		hb_layer = hb.collision_layer
+		hb_mask = hb.collision_mask
+	ModLoaderLog.info("ALLY HIT BY PLAYER-SIDE: %s by %s layer=%s dmg=%s from=%s | ally hb layer=%s mask=%s wave=%s" % [enemy.name, area.name, area.collision_layer, area.get("damage"), from_desc, hb_layer, hb_mask, RunData.current_wave], RC_LOG)
+
+
 func _on_charmed_ally_died(entity, _args) -> void:
 	# unpin the vanilla retarget timer (see _setup_charmed_ally) so a pooled
 	# respawn of this node comes back with working targeting
 	entity.update_target_timer = 0.0
+	# diagnostic (explosion-on-charmed-boss report): dump the death cause of
+	# charmed bosses so the killer can be identified from the log
+	if entity.get("is_elite") != null and _args != null and not _args.cleaning_up:
+		var killer = _args.get("from")
+		var killer_desc := "null"
+		if killer != null and is_instance_valid(killer):
+			killer_desc = "%s pi=%s" % [killer.get_class(), killer.get("player_index")]
+		ModLoaderLog.info("charmed boss died: %s from=%s by_player=%s blow=%s burning=%s wave=%s" % [entity.name, killer_desc, _args.killed_by_player_index, _args.killing_blow_dmg_value, _args.is_burning, RunData.current_wave], RC_LOG)
 	# restore the hurtbox collision setup so a pooled respawn of this node
 	# comes back as a normal, player-hittable enemy
 	if entity.has_meta("rc_hb_layer"):
@@ -747,6 +895,59 @@ func _reconcile_charm_coins() -> void:
 		existing -= 1
 
 
+# Vanilla endless dilutes ALL charm rolls (charm_enemy_effect_behavior.gd:65
+# divides the summed chance by max(1, get_endless_factor()/2) — quadratic,
+# kicking in at wave 34, ÷11.6 by wave 50). That formula is vanilla's answer
+# to the Romantic's free HP-scaled charm, but it silently voids the paid,
+# capped charm coins in deep endless. The coin now fights the dilution with
+# the player's own max HP — same axis the Romantic rides: every 100 max HP
+# cancels one layer of dilution (m = 1 + maxHP/100, capped at the dilution
+# itself so the coin returns to its printed 1%/2% but never exceeds it).
+# Delivery detail: the vanilla max(1, value/100*stat) floor locks every
+# structure_range entry at a flat 1%, so compensation can't ride a bigger
+# value on a zero stat — it rides stat_max_hp with a value back-solved from
+# the player's current HP (one entry per HP window, recomputed every scan)
+func _reconcile_charm_compensation() -> void:
+	var arr = RunData.get_player_effects(0)[Keys.charm_on_hit_hash]
+	# drop last scan's compensation entries; signature = stat_max_hp key with a
+	# 30/60 threshold (the Romantic's own charm entry is threshold 25, and the
+	# coins' own entries key structure_range — no collisions)
+	for i in range(arr.size() - 1, -1, -1):
+		var e = arr[i]
+		if e is Array and e.size() == 3 and e[0] == Keys.stat_max_hp_hash and (e[2] == 30 or e[2] == 60):
+			arr.remove(i)
+	var coins := 0
+	var cursed := 0
+	for item in RunData.get_player_items_ref(0):
+		if item != null and item.my_id == CHARM_COIN_ID:
+			coins += 1
+			if item.is_cursed:
+				cursed += 1
+	if coins == 0:
+		return
+	var dilution = max(1.0, RunData.get_endless_factor() / 2.0)
+	if dilution <= 1.0:
+		return
+	var max_hp = float(Utils.get_stat(Keys.stat_max_hp_hash, 0))
+	var cancel = min(dilution, 1.0 + max_hp / 100.0)
+	# each coin's own entry is floor-locked to a flat 1% under 30% HP (cursed
+	# doubling is void on a zero stat); each cursed coin adds a flat 1% window
+	# under 60% HP — compensate both windows by (cancel - 1) x their base
+	_add_charm_compensation(arr, coins * (cancel - 1.0), 30, max_hp)
+	if cursed > 0:
+		_add_charm_compensation(arr, cursed * (cancel - 1.0), 60, max_hp)
+
+
+# Adds one charm window worth `extra_pct` percent at `threshold`% enemy HP.
+# The entry's chance is max(1, value/100 * maxHP) — value is back-solved so
+# the window lands exactly on extra_pct at the player's current HP
+func _add_charm_compensation(arr, extra_pct: float, threshold: int, max_hp: float) -> void:
+	if extra_pct < 0.5:
+		return
+	var value = int(round(extra_pct * 100.0 / max(1.0, max_hp)))
+	arr.push_back([Keys.stat_max_hp_hash, value, threshold])
+
+
 func _on_wave_begin(spawner, main) -> void:
 	_magnet_spawned_this_wave = 0
 	# carry over bosses that were alive at the end of last wave
@@ -809,6 +1010,17 @@ func _scan(spawner, main) -> void:
 		if cb == null or not cb.charmed:
 			continue
 		_apply_ally_knockback(enemy)
+		# self-heal the hurtbox invariants (explosion-on-charmed-boss report):
+		# probe-verified that mask 4|16 makes player projectiles/explosions
+		# (layer 8) physically unable to reach a charmed ally — if anything
+		# ever reverts the vanilla collision state (pool respawn race, engine
+		# re-enable), repair it on the spot and log instead of letting the
+		# ally silently become player-hittable again
+		var hb = enemy.get("_hurtbox")
+		if hb != null and (hb.collision_layer != Utils.PETS_BIT or hb.collision_mask != (Utils.ENEMIES_BIT | Utils.ENEMY_PROJECTILES_BIT)):
+			ModLoaderLog.info("charmed ally hurtbox reverted, repairing: %s layer=%s mask=%s wave=%s" % [enemy.name, hb.collision_layer, hb.collision_mask, RunData.current_wave], RC_LOG)
+			hb.collision_layer = Utils.PETS_BIT
+			hb.collision_mask = Utils.ENEMIES_BIT | Utils.ENEMY_PROJECTILES_BIT
 		if enemy.get("is_elite") == null:
 			charmed_smalls.push_back(enemy)
 			# only normal enemies are coin-bindable species; coin allies
@@ -863,6 +1075,7 @@ func _scan(spawner, main) -> void:
 	# Real deaths erase their record in _on_boss_died; run resets clear the rest.
 	_reconcile_coins()
 	_reconcile_charm_coins()
+	_reconcile_charm_compensation()
 
 	# bind empty coin slots as soon as a charmed ally exists, and spawn the
 	# new ally immediately — wave-end binding stays as a fallback, but a coin
@@ -982,6 +1195,11 @@ func _police_charmed_targets(spawner, main) -> void:
 	for ally in allies:
 		# backstop the pin from _setup_charmed_ally (respawn paths, late charm)
 		ally.update_target_timer = -99999.0
+		# backstop the ring-bullet conversion too: late-registered additional
+		# projectiles (DLC Eel's phase-1 ring, pooled projectiles whose layer
+		# was restored on pool return) get re-flipped here. Idempotent and
+		# near-free for normal allies (their projectile list is empty)
+		_convert_additional_projectiles(ally)
 		var target = ally.current_target
 		if target != null and is_instance_valid(target) and not target.dead \
 		and target.get("collision_layer") == Utils.ENEMIES_BIT:
@@ -1064,11 +1282,17 @@ func _revive_boss(record, main) -> void:
 	if scene == null:
 		return
 	var pos = record.get("pos")
+	if pos != null and _get_player_pos(main).distance_to(pos) < 500:
+		# reviving right where the hostile boss died drops the 25%-HP charmed
+		# boss into the exact kill zone that just deleted the original — with
+		# dense player fire it dies before it can even walk out. Fall back to
+		# an edge spawn (same as magnet bosses) when the death spot is hot
+		pos = null
 	if pos == null:
 		# carried bosses have no death position; spawn at a random spot in the
 		# zone instead of right on the player's face (a boss materializing on
 		# top of you and instantly charging looks and feels like an attack)
-		pos = spawner.get_spawn_pos_in_area(_get_player_pos(main), -1, 100)
+		pos = spawner.get_spawn_pos_in_area(_get_player_pos(main), -1, 100, true)
 	var args = EntitySpawner.SpawnEntityArgs.new(pos, EntityType.BOSS)
 	var boss = spawner.spawn_entity(scene, args, null, null, -1)
 	if boss == null:

@@ -1,7 +1,7 @@
 {
 	"name": "SuperCharm",
 	"namespace": "Crystalhihihi",
-	"version_number": "1.0.47",
+	"version_number": "1.0.50",
 	"description": "Permanent charm, boss revive-charm, carry-over bosses, revival coin item",
 	"website_url": "",
 	"dependencies": ["Darkly77-ContentLoader"],

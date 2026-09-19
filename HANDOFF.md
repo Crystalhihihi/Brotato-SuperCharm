@@ -39,7 +39,111 @@ GodotWorkshopUtility 内容选 publish/ 里的 zip + preview.png，**ID 栏填 3
 存盘）→ 本地覆盖时用**同名文件**覆盖，别用别的名字塞进去，否则 Steam 校验后会把自己
 那份再下回来，变成两个 zip。
 
-## mod 当前功能（v47 / manifest 1.0.47，已打包并覆盖本地工坊文件夹 3796762706（文件名"超级魅惑 SuperCharm.zip"，md5 da4f8eb34d754c0331050516fa69e66a）；真实启动验证：无 DLC 时警告如期触发、0 脚本错误。**尚未推 Steam**，推送用 GodotWorkshopUtility + ID 3796762706 + publish/超级魅惑 SuperCharm.zip）
+## mod 当前功能（v50 / manifest 1.0.50，已打包并覆盖本地工坊文件夹 3796762706（文件名"超级魅惑 SuperCharm.zip"）；**尚未推 Steam**，推送用 GodotWorkshopUtility + ID 3796762706 + publish/超级魅惑 SuperCharm.zip）
+
+**⚠ 最新状态（2026-09-15 深夜，用户已睡，下次从这继续）**：
+魅惑 boss 死亡调查**未结**。已确认的事实：
+- 复活 boss 不再被 area 路径瞬秒（一帧窗修复有效），但战斗中仍被**玩家归因的
+  不明伤害**打死：死因日志 `killed_by_player_index` 出现 **0 和 1 两种**（单人局！
+  player_index 合法取值只有 敌=-1 / 玩家=0 / DUMMY=123，**1 来源不明**），
+  blow 从 81（波 23）到 617k（波 48+）都有；by_player=123（敌方集火）是正常死法。
+- 已部署**探针包**（21:01 打包，zip 已覆盖工坊文件夹）：`effects/rc_boss_probe.gd`
+  挂在魅惑 boss 的 effect_behaviors 上，on_taken_damage 抓**所有** take_damage
+  路径（含绕过 hurtbox 的直伤），日志前缀 "BOSS PROBE"（记 hitbox 层/from/
+  from_player_index）。**但用户当前对局（21:01:02 启动）和写包撞车，日志里
+  BOSS PROBE=0 条 → 探针没加载。下次必须让用户完全退出游戏再启动，打到
+  45+ 波死几个魅惑 boss，读日志里的 BOSS PROBE 行即可定位凶手。**
+- 同包改动：复活 boss 死亡点离玩家 <500px 时改地图边缘生成（与磁石一致）。
+- **发布 Steam 前清理调试件**：`effects/rc_boss_probe.gd`（探针）、
+  `_scan` 的 hurtbox 自愈日志（"hurtbox reverted, repairing"）、
+  hurtbox area_entered 诊断（"ALLY HIT BY PLAYER-SIDE"）、
+  "charmed boss died" 死因日志 —— 视情况删/留（纯日志无副作用，但刷屏）。
+- vanilla 全部 take_damage 调用点已穷举：hurtbox 路径、player.gd:457 闪避反击
+  （hitbox.from.take_damage，唯一绕过 hurtbox 的玩家归因路径，但魅惑怪 1024
+  撞不到玩家、理论上触发不了）、替罪羊自残。QMtato/Brotils/FishHook/UnlockAll
+  已排查无相关直伤（QMtato 直伤都是其自定义角色专属）。
+- 探针方法论（重要）：`Brotato.exe -s user://xxx.gd --headless` 可跑
+  extends SceneTree 的探针脚本，结果写 user:// 文件；物理帧用 `_iteration`
+  计数（SceneTree 没有 _physics_process）；编译检查用 GDScript.new()+reload()。
+- /tmp/gdre（游戏反编译）和 /tmp/qmtato（QMtato 解包）本次已重解，重启会丢。
+
+-5. **魅惑币无尽衰减用最大生命抵消（v49，用户拍板的方向）**：原版无尽把魅惑总概率
+   ÷max(1, get_endless_factor()/2)（34 波起 ÷1.05、38÷2.2、40÷3.15、50÷11.6、
+   80÷100.7、100÷243，三次方衰减）。魅惑币固定 1%/2% 会归零。v49：
+   `_reconcile_charm_compensation`（`_scan` 里每 0.5s 跑）给每枚币注入补偿窗口——
+   抵消倍率 m = 1 + 最大生命/100，封顶到稀释倍率本身（只恢复标称概率，永不超出，
+   "玩家自己凑血量，凑不齐是自己的事"）。**实现要点**：原版 on_hurt 的
+   max(1, value/100×stat) 地板把 structure_range（恒 0）条目锁死在固定 1%，
+   调 value 无效；补偿条目必须挂 `stat_max_hp` 反解 value（value = extra_pct×100/maxHP）。
+   签名 = [stat_max_hp_hash, 任意值, 30/60]，每次扫描先清后加；浪漫之人自己的
+   [stat_max_hp, 50, 25] 阈值不同不会误删。10 语言物品描述同步加了一句
+   "每 100 最大生命抵消 1 倍衰减"。**boss 数值冻结维持不变**（用户明确：
+   不冻结太离谱）。浪漫之人自身魅惑不做补偿（实测血量成长在 100 波前都能扛住）。
+
+-4.9. **猎杀者环绕子弹魅惑后不再敌对（v48）**：vanilla charm() 只转换
+   ShootingAttackBehavior 射出的子弹（custom_collision_layer→PET_PROJECTILES_BIT
+   + hue_shift 灰蓝色 shader），对 `register_additional_projectile` 注册的
+   "additional" 子弹（Predator 的 $Pivot 环绕弹环，enemy_projectile_rotating.gd，
+   场景预置子节点）完全不处理 → 魅惑后弹环保持 layer16 红色敌对、照打玩家
+   （本体只有 Predator 用这个机制；**DLC 还有三个：水母 Jellyfish×4 环、
+   巨人 Giant×2 环（都在 _ready 注册，同 Predator 路径）、鳗鱼 Eel**）。
+   修复：`_setup_charmed_ally` 里遍历
+   `enemy._all_additional_projectiles`，逐个 `set_collision_layer(PET_PROJECTILES_BIT)`
+   + 套用 vanilla 同款 hue_shift shader（hue=Utils.CHARM_COLOR.h）→ 变灰蓝、
+   转打敌人（敌方 hurtbox mask 含 1024）。**无需死亡还原**：boss 永不进池
+   （Boss.respawn() 直接 assert false），且 Predator die() 会 queue_free 整个
+   Pivot，不存在池化泄漏。
+   **v50 补洞（用户实测 DLC 环弹 boss 魅惑后仍是红弹可打人）**：鳗鱼 Eel 的
+   环弹不在 _ready 注册——`on_state_changed(1)` 时才 instance pivots_scene
+   再 register_additional_projectile，晚于魅惑 setup → 转换漏网。修复：
+   ① 转换抽成幂等函数 `_convert_additional_projectiles`（以 hitbox 层
+   ==PET_PROJECTILES_BIT 判已转跳过，避免 shader dup 抖动）；② 魅惑 setup 时
+   对 boss 连 `state_changed` 信号 → `_on_charmed_boss_state_changed` →
+   `call_deferred(_convert_additional_projectiles_deferred)`（必须 deferred：
+   Boss.on_state_changed 里 emit 在子类注册之前）；③ `_police_charmed_targets`
+   0.1s 巡逻里对每个 ally 兜底重转（普通怪列表为空近零开销，池化弹被还原
+   层也能自愈）。另外注意：魅惑机制本身就是 DLC 内容，vanilla 实现在
+   dlcs/dlc_1/effect_behaviors/enemy/charm_enemy_effect_behavior.gd，且
+   on_hurt 里 `_parent is Boss` 直接 return——boss 永远只能走 mod 的复活魅惑。
+   **同次排查结论（用户报"26-30 波后魅惑/币失效"，实跑存档到 38 波）**：
+   ① 无尽没有换代码，是原版魅惑稀释：`charm_chance / max(1, get_endless_factor()/2)`，
+   factor = (ew×(ew+1)/2)/100 × (2+max(0,(wave-35)×0.2))，ew=wave-20。
+   **≤33 波稀释恒为 1（无影响）**；34 波 ÷1.05、38 ÷2.2、40 ÷3.15、45 ÷6.5、
+   50 ÷11.6。魅惑币固定 1%/2%（structure_range 恒 0）→ 38 波后实效 0.3~0.9%，
+   体感=失效；浪漫之人自身 0.5%×最大生命 基数大，稀释后仍可用（日志里 100
+   上限裁员持续到最后一波为证）。② "魅惑 boss 吃我方爆炸"：静态分析（玩家爆炸
+   hitbox 层=8，魅惑怪 hurtbox mask=4|16 → 打不到）被用户实测推翻（辣酱吃水果
+   爆炸当面炸死魅惑 boss）。**-s 物理探针（真引擎）确认 mask=4|16 的魅惑怪对
+   layer=8 确实不可见** → 唯一可能是 hurtbox 状态被还原/未生效。**v49 实测抓到
+   真凶：一帧真空窗**——魅惑瞬间 charm() 的 hurtbox disable 是 set_deferred、
+   mod 的 setup 是 call_deferred，都要等下一帧，当帧怪还是 vanilla hurtbox
+   （enabled + mask 1032 含玩家子弹/爆炸）→ 复活 boss 25% 血落进弹火密集区，
+   一帧内十几个命中同时结算直接秒（日志：5/5 复活 boss 0~1s 内被 by_player=0
+   的 116k~264k blow 打死；魅惑小怪被 layer=8 命中时 hb layer=0 mask=1032）。
+   修复：`_on_enemy_charmed` 里**同步**调 `_protect_ally_hurtbox`（layer/mask
+   立刻改 + `_collision.disabled = true` 直接落，不走 deferred；魅惑入口全是
+   idle 时机，直接写碰撞安全）。on_hurt 中途魅惑的"当帧排队命中"无法取消
+   （hurt_area_entered_deferred 无魅惑判定且不能动 unit.gd），小怪满血兜底
+   可承受。另保留：` _scan` hurtbox 状态自愈+日志、hurtbox area_entered 诊断
+   （"ALLY HIT BY PLAYER-SIDE"）、魅惑 boss 死因日志（"charmed boss died"）。
+   魅惑 boss 后期被敌方集火融化仍是主要死因（数值冻结在被魅惑波次 vs 敌人按
+   当前波缩放，38 波 ≈ ×5.5）。
+   **一帧窗修复后仍被秒（v49 二轮排查）**：玩家侧 area 命中归零（hurtbox 防护
+   生效），但复活 boss 依旧 0~1s 死、by_player=0、blow 15~62 万 → 伤害完全
+   绕过 hurtbox。vanilla 全库 take_damage 调用点只有 hurtbox 路径 +
+   闪避反击（player.gd:457 hitbox.from.take_damage）+ 替罪羊自残；
+   QMtato 直伤全是其自定义角色专属（用户玩浪漫之人不涉及）。待查。
+   已部署：① 复活 boss 死亡点离玩家 <500 时改地图边缘生成（与磁石一致，
+   脱离秒杀火力区）；② `effects/rc_boss_probe.gd` 探针挂到魅惑 boss 的
+   effect_behaviors（鸭式接口，on_taken_damage 能抓到所有 take_damage 路径，
+   记 hitbox 层/from/from_player_index）→ 日志 "BOSS PROBE"。
+   ③ 复活币后期仍正常绑定（日志：25 波商店买的两个币当场绑定 tentacle 并
+   生成）；后期币小弟出生即被高波怪群秒，观感差但不是失效。
+   ④ vanilla 魅惑并发上限其实是 **999**（charm tscn 覆盖 export 的 5），
+   计数器每波 `_reset_per_wave_properties` 清零，不是问题来源。
+   **后续处理（v49）**：稀释抵消已实现（见 -5，绑定最大生命）；boss 数值
+   冻结维持（用户决定）。另：本次排查的反编译产物 /tmp/gdre 是 2026-09-15
+   重新解的（重启会丢，GDRE Tools v2.6.4 直接 GitHub 下载可用）。
 
 **v45 改名**：mod ID `LocalMods-RomanceCharm` → `Crystalhihihi-SuperCharm`（manifest name/namespace、
 zip 内文件夹、mod_main.gd 的 RC_LOG/MOD_DIR/ContentLoader 注册名、3 处 tres ext_resource
