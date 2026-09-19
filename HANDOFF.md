@@ -67,6 +67,31 @@ GodotWorkshopUtility 内容选 publish/ 里的 zip + preview.png，**ID 栏填 3
   计数（SceneTree 没有 _physics_process）；编译检查用 GDScript.new()+reload()。
 - /tmp/gdre（游戏反编译）和 /tmp/qmtato（QMtato 解包）本次已重解，重启会丢。
 
+**⚠ 2026-09-16 会话增量（压缩前最新）**：
+- **v50（1.0.50）DLC 环弹 boss 修复已打包，用户实测"看起来没问题"**。细节在下方
+  -4.9 节的 v50 补洞段：DLC 三个环弹 boss = 水母×4 环 / 巨人×2 环（_ready 注册，
+  v48 已覆盖）/ **鳗鱼 Eel（on_state_changed(1) 才 instance 环弹，晚注册漏转，
+  是真凶）**；修法 = 幂等 `_convert_additional_projectiles` + boss `state_changed`
+  信号 deferred 重转 + 0.1s 巡逻兜底。另确认：魅惑机制本身是 DLC 内容
+  （charm_enemy_effect_behavior.gd），其 on_hurt 里 `_parent is Boss` 直接 return
+  → boss 只能走 mod 的复活魅惑路径。
+- **GitHub 已推送**（Crystalhihihi/Brotato-SuperCharm main）：`6e5dd33` = v48~v50
+  三版代码（含 effects/rc_boss_probe.gd 探针）；`2e21803` = 工坊描述反馈邀请。
+- **工坊描述加了反馈邀请**（"觉得超标/需要削弱/有 bug 请留言"），10 语言节全覆盖
+  （description.txt 简中+英文有独立「▌反馈 / Feedback」区；i18n 的繁/俄/西/葡/德/
+  法/日/韩各节末尾一句）。**尚未贴到 Steam 页**——推 v50 时一并贴。
+  西语是中性版，Steam 西班牙/拉美两分区贴同一份即可。
+- **平衡结论（存档备查）**：原版无尽 boss 数量恒定不涨（每 10 波固定 3 精英
+  [main.gd:973 init_elites_spawn(current_wave+10)，无尽里 horde_chance=0 必精英型]
+  + 每 20 波复读一次 wave20 boss 波 [zone_service.get_wave_data 循环 wave11~20]），
+  增长的只有数值（endless factor 三次方）和小怪群。mod 磁石上限线性随波长
+  （alive_cap +1/4 波、wave_cap +1/2 波）→ 数量上 mod 快。但魅惑 boss 数值冻结
+  在捕获波 → 大后期数量对冲不了数值膨胀。**用户拍板：维持现状不调平衡，
+  等玩家反馈**；要调就动 mod_main.gd 开头常量区（BOSS_CHARM_CHANCE /
+  BOSS_MAGNET_* / BOSS_REVIVE_HP_RATIO / BOSS_WAVE_HEAL_RATIO）。
+- **推 Steam 仍待办**：GodotWorkshopUtility + ID 3796762706 +
+  publish/超级魅惑 SuperCharm.zip（v50）+ preview.png + 更新后的描述文案。
+
 -5. **魅惑币无尽衰减用最大生命抵消（v49，用户拍板的方向）**：原版无尽把魅惑总概率
    ÷max(1, get_endless_factor()/2)（34 波起 ÷1.05、38÷2.2、40÷3.15、50÷11.6、
    80÷100.7、100÷243，三次方衰减）。魅惑币固定 1%/2% 会归零。v49：
